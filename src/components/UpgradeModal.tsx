@@ -32,7 +32,7 @@ export default function UpgradeModal() {
   return (
     <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-slate-950/85 p-5">
       <h2 className="mb-1 font-mono text-2xl tracking-widest text-amber-400">LEVEL UP</h2>
-      <p className="mb-6 text-sm text-slate-400">Выбери одно усиление</p>
+      <p className="mb-6 text-sm text-slate-400">Pick one</p>
 
       <div className="flex w-full max-w-sm flex-col gap-3">
         {choices.map((u) => (

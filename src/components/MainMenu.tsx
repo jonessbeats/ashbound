@@ -44,7 +44,7 @@ export default function MainMenu({ onStart }: { onStart: () => void }) {
       </div>
 
       <p className="relative z-10 mb-10 max-w-xs text-center text-sm text-slate-500">
-        Выживай среди бесконечных волн. Каждый забег заканчивается одинаково.
+        Survive endless waves. Clear locations. Mint your ashes.
       </p>
 
       {/* Кнопки меню — крупные, 44px+ */}

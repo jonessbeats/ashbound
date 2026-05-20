@@ -7,14 +7,14 @@ import type Player from './Player';
 
 // Полный список апгрейдов MVP.
 export const UPGRADE_POOL: Upgrade[] = [
-  { id: 'damage', title: '+20% Damage', description: 'Огненные болты бьют сильнее' },
-  { id: 'moveSpeed', title: '+15% Move Speed', description: 'Двигайся быстрее — живи дольше' },
-  { id: 'attackCooldown', title: '-15% Cooldown', description: 'Стреляешь чаще' },
-  { id: 'maxHp', title: '+25 Max HP', description: 'Больше запас прочности' },
-  { id: 'pickupRadius', title: '+30 Pickup Radius', description: 'XP притягивается издалека' },
-  { id: 'critChance', title: '+8% Crit Chance', description: 'Шанс удвоить урон' },
-  { id: 'projectileSpeed', title: '+25% Projectile Speed', description: 'Болты летят быстрее' },
-  { id: 'projectileCount', title: '+1 Projectile', description: 'Ещё один болт за выстрел' },
+  { id: 'damage', title: '+20% Damage', description: 'Firebolts hit harder' },
+  { id: 'moveSpeed', title: '+15% Move Speed', description: 'Move faster — live longer' },
+  { id: 'attackCooldown', title: '-15% Cooldown', description: 'Fire more often' },
+  { id: 'maxHp', title: '+25 Max HP', description: 'Bigger health pool' },
+  { id: 'pickupRadius', title: '+30 Pickup Radius', description: 'XP pulled from further away' },
+  { id: 'critChance', title: '+8% Crit Chance', description: 'Chance to double damage' },
+  { id: 'projectileSpeed', title: '+25% Projectile Speed', description: 'Bolts fly faster' },
+  { id: 'projectileCount', title: '+1 Projectile', description: 'One extra bolt per shot' },
 ];
 
 // Выбрать 3 случайных разных апгрейда для модалки level up.
