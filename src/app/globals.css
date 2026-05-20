@@ -1,0 +1,28 @@
+/* ──────────────────────────────────────────────────────────────
+   globals.css — глобальные стили + Tailwind.
+   ────────────────────────────────────────────────────────────── */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Сброс высоты под полноэкранную игру. */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overscroll-behavior: none; /* без «пружины» при скролле на мобилке */
+  -webkit-tap-highlight-color: transparent; /* без подсветки тапов */
+}
+
+/* Запрет выделения текста — мешает в игровом UI. */
+* {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Canvas Phaser — без лишних отступов и инлайн-стилей. */
+canvas {
+  display: block;
+}
