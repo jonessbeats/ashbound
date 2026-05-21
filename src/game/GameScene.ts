@@ -51,6 +51,7 @@ export default class GameScene extends Phaser.Scene {
   private nextAttackAt = 0;
   private hudTick = 0;
   private pendingLevelUps = 0; // отложенные level-up, если выпало несколько за раз
+  private vacuuming = false; // автосбор XP-орбов на переходе между волнами
 
   // ── Ввод ──
   private moveVec = new Phaser.Math.Vector2(0, 0);
@@ -165,6 +166,7 @@ export default class GameScene extends Phaser.Scene {
     this.nextAttackAt = 0;
     this.hudTick = 0;
     this.pendingLevelUps = 0;
+    this.vacuuming = false;
     this.finished = false;
     this.running = true;
     this.physics.resume();
@@ -417,14 +419,20 @@ export default class GameScene extends Phaser.Scene {
     }
   }
 
-  // Волна зачищена: следующая волна или победа.
+  // Волна зачищена: сначала собираем оставшийся XP, потом — следующая волна или победа.
   private onWaveCleared(): void {
     this.waveIndex++;
-    if (this.waveIndex >= this.location.waves.length) {
-      this.endRun(true); // волн больше нет — локация пройдена
-    } else {
-      this.startIntermission(); // пауза перед следующей волной
-    }
+    // Сразу гасим waveActive, чтобы повторная проверка зачистки не сработала
+    // во время паузы автосбора (700мс).
+    this.waveActive = false;
+    const isVictory = this.waveIndex >= this.location.waves.length;
+    this.vacuumOrbs(() => {
+      if (isVictory) {
+        this.endRun(true); // волн больше нет — локация пройдена
+      } else {
+        this.startIntermission(); // пауза перед следующей волной
+      }
+    });
   }
 
   // Текущая волна (с защитой от выхода за границы).
@@ -590,7 +598,37 @@ export default class GameScene extends Phaser.Scene {
     const r = this.player.stats.pickupRadius;
     this.orbs.getChildren().forEach((obj) => {
       const orb = obj as XPOrb;
-      if (orb.active) orb.magnetTo(this.player.x, this.player.y, r);
+      if (!orb.active) return;
+      if (this.vacuuming) {
+        // Автосбор на переходе — притягиваемся с любого расстояния.
+        orb.forceMagnetTo(this.player.x, this.player.y);
+      } else {
+        orb.magnetTo(this.player.x, this.player.y, r);
+      }
+    });
+  }
+
+  // Принудительно собрать все оставшиеся XP-орбы на арене.
+  // Используется при переходе на следующую волну / победе локации.
+  // Игра «замирает» на ~700мс, орбы магнитятся к игроку, после чего
+  // вызывается then() для продолжения нормальной логики.
+  private vacuumOrbs(then: () => void): void {
+    const aliveOrbs = this.orbs.getChildren().filter((o) => o.active).length;
+    if (aliveOrbs === 0) {
+      then();
+      return;
+    }
+    this.vacuuming = true;
+    this.time.delayedCall(700, () => {
+      this.vacuuming = false;
+      // На всякий случай — добиваем оставшиеся орбы (если игрок их не догнал).
+      this.orbs.getChildren().forEach((o) => {
+        if (o.active) {
+          this.gainXp((o as XPOrb).value);
+          o.destroy();
+        }
+      });
+      then();
     });
   }
 

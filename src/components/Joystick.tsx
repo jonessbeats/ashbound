@@ -67,8 +67,11 @@ export default function Joystick() {
 
   return (
     <div
-      // Зона захвата — левая половина экрана.
-      className="absolute inset-y-0 left-0 w-1/2 touch-none"
+      // Зона захвата — ВЕСЬ экран. На любое касание поднимается джойстик
+      // там, где палец коснулся. HUD и WaveBanner имеют pointer-events:none,
+      // так что они не воруют касания. Кнопка EXIT — реальная кнопка с z-30,
+      // её клик не доходит сюда, всё остальное — джойстик.
+      className="absolute inset-0 z-10 touch-none"
       onTouchStart={onStart}
       onTouchMove={onMove}
       onTouchEnd={onEnd}

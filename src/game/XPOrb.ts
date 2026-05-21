@@ -31,4 +31,17 @@ export default class XPOrb extends Phaser.Physics.Arcade.Sprite {
       this.setVelocity(0, 0); // вне радиуса — лежит на месте
     }
   }
+
+  // Принудительное притяжение к игроку с любого расстояния.
+  // Используется при автосборе между волнами/локациями.
+  public forceMagnetTo(px: number, py: number): void {
+    const dx = px - this.x;
+    const dy = py - this.y;
+    const dist = Math.hypot(dx, dy);
+    if (dist < 1) return; // уже у игрока
+    const angle = Math.atan2(dy, dx);
+    // Скорость растёт с расстоянием, чтобы дальние орбы успели долететь за паузу.
+    const speed = Math.max(400, Math.min(900, dist * 4));
+    this.setVelocity(Math.cos(angle) * speed, Math.sin(angle) * speed);
+  }
 }
