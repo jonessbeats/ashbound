@@ -47,7 +47,9 @@ export default function HUD() {
 
   return (
     // pointer-events-none — HUD не перехватывает касания (они идут в джойстик).
-    <div className="pointer-events-none absolute inset-x-0 top-0 z-20 p-3">
+    // max-w + mx-auto — на широких экранах HUD не растягивается на всю ширину.
+    // pr-16 — справа резервируем место под кнопку EXIT (top-right).
+    <div className="pointer-events-none absolute inset-x-0 top-0 z-20 mx-auto max-w-md p-3 pr-16">
       {/* Верхняя строка: волна по центру, level / kills по бокам */}
       <div className="flex items-center justify-between font-mono text-sm text-slate-200">
         <span className="rounded bg-slate-900/70 px-2 py-1">

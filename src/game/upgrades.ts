@@ -39,7 +39,8 @@ export function applyUpgrade(player: Player, id: UpgradeId): void {
       s.moveSpeed = Math.round(s.moveSpeed * 1.15);
       break;
     case 'attackCooldown':
-      s.attackCooldown = Math.round(s.attackCooldown * 0.85);
+      // Не даём кулдауну упасть слишком низко — иначе спам болтов = фриз.
+      s.attackCooldown = Math.max(80, Math.round(s.attackCooldown * 0.85));
       break;
     case 'maxHp':
       s.maxHp += 25;

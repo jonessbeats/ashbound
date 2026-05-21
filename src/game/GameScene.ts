@@ -50,6 +50,7 @@ export default class GameScene extends Phaser.Scene {
   private finished = false; // run завершён (победа или смерть)
   private nextAttackAt = 0;
   private hudTick = 0;
+  private pendingLevelUps = 0; // отложенные level-up, если выпало несколько за раз
 
   // ── Ввод ──
   private moveVec = new Phaser.Math.Vector2(0, 0);
@@ -99,6 +100,11 @@ export default class GameScene extends Phaser.Scene {
       applyUpgrade(this.player, id);
       this.running = true;
       this.physics.resume();
+      // Если за время уровня накопилось ещё левелапов — открываем следующую модалку.
+      if (this.pendingLevelUps > 0) {
+        // Через таймер — чтобы React успел закрыть текущую модалку.
+        this.time.delayedCall(50, () => this.triggerLevelUp());
+      }
     });
 
     // Запуск конкретной локации (из экрана выбора локаций).
@@ -158,6 +164,7 @@ export default class GameScene extends Phaser.Scene {
     this.kills = 0;
     this.nextAttackAt = 0;
     this.hudTick = 0;
+    this.pendingLevelUps = 0;
     this.finished = false;
     this.running = true;
     this.physics.resume();
@@ -604,12 +611,19 @@ export default class GameScene extends Phaser.Scene {
     while (this.player.xp >= needed) {
       this.player.xp -= needed;
       this.player.level++;
-      this.triggerLevelUp();
+      // Откладываем левелап в очередь, чтобы не показывать модалку поверх модалки.
+      this.pendingLevelUps++;
       needed = xpForLevel(this.player.level);
+    }
+    // Если игра не на паузе из-за уже открытой модалки — открываем первую.
+    if (this.pendingLevelUps > 0 && this.running) {
+      this.triggerLevelUp();
     }
   }
 
   private triggerLevelUp(): void {
+    if (this.pendingLevelUps <= 0) return;
+    this.pendingLevelUps--;
     this.running = false;
     this.physics.pause();
     EventBus.emit(GameEvents.LEVEL_UP, rollUpgrades());

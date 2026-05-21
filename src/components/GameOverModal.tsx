@@ -20,6 +20,7 @@ import WalletConnect from './WalletConnect';
 export default function GameOverModal() {
   const [result, setResult] = useState<RunResult | null>(null);
   const [bestScore, setBestScore] = useState(0);
+  const [totalRuns, setTotalRuns] = useState(0);
 
   const { isConnected } = useAccount();
   const mint = useMintRunBadge();
@@ -34,6 +35,7 @@ export default function GameOverModal() {
       mintRef.current.reset();
       setResult(r);
       setBestScore(progress.bestScore);
+      setTotalRuns(progress.totalRuns);
     };
     EventBus.on(GameEvents.GAME_OVER, onGameOver);
     return () => {
@@ -84,6 +86,7 @@ export default function GameOverModal() {
     ['Level Reached', result.level],
     ['Enemies Killed', result.kills],
     ['Best Score', bestScore.toLocaleString()],
+    ['Total Runs', totalRuns.toLocaleString()],
   ];
 
   // ── Текст кнопки минта по стадии транзакции ──
