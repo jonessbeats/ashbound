@@ -67,7 +67,7 @@ export const DIFFICULTY = {
 };
 
 // Размер арены — небольшая закрытая карта, камера следует за игроком.
-export const ARENA = { width: 2400, height: 2400 };
+export const ARENA = { width: 1600, height: 1600 };
 
 // Финальный счёт за run.
 export function scoreFromRun(kills: number, level: number, survivalSec: number): number {

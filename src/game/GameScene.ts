@@ -75,6 +75,11 @@ export default class GameScene extends Phaser.Scene {
     this.enemyProjectiles = this.physics.add.group();
     this.orbs = this.physics.add.group();
 
+    // Враги расталкиваются друг от друга — чтобы не слипались в один комок
+    // при беге к игроку. Коллайдер живёт всю сцену, не в setupCollisions
+    // (тот пересоздаётся при рестарте локации — а группа enemies та же).
+    this.physics.add.collider(this.enemies, this.enemies);
+
     this.setupInput();
     this.setupEventBus();
 

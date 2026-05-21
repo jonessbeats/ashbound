@@ -38,7 +38,7 @@ export const LOCATIONS: LocationConfig[] = [
     description: 'Where the first ash fell. Five waves to survive.',
     floorTexture: 'floor-ruins',
     decorTheme: 'decor-catacombs',
-    decorCount: 22,
+    decorCount: 14,
     waves: [
       { count: 6, weights: { slime: 5 }, hpMultiplier: 1.0 },
       { count: 9, weights: { slime: 4, bat: 3 }, hpMultiplier: 1.1 },
@@ -53,7 +53,7 @@ export const LOCATIONS: LocationConfig[] = [
     description: 'Twisted trees and restless bones. Seven waves.',
     floorTexture: 'floor-forest',
     decorTheme: 'decor-swamp',
-    decorCount: 30,
+    decorCount: 18,
     waves: [
       { count: 10, weights: { slime: 3, bat: 4 }, hpMultiplier: 1.3 },
       { count: 13, weights: { bat: 4, skeleton: 3 }, hpMultiplier: 1.45 },
@@ -70,7 +70,7 @@ export const LOCATIONS: LocationConfig[] = [
     description: 'The deepest cold. Nine waves. Only the strong return.',
     floorTexture: 'floor-crypt',
     decorTheme: 'decor-inferno',
-    decorCount: 18,
+    decorCount: 12,
     waves: [
       { count: 14, weights: { bat: 4, skeleton: 4 }, hpMultiplier: 2.0 },
       { count: 16, weights: { skeleton: 5, elite: 1 }, hpMultiplier: 2.2 },
