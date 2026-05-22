@@ -26,8 +26,9 @@ const INITIAL: HudState = {
   bossHpFraction: 0,
 };
 
-export default function HUD() {
+export default function HUD({ onExit }: { onExit: () => void }) {
   const [hud, setHud] = useState<HudState>(INITIAL);
+  const [confirmExit, setConfirmExit] = useState(false);
 
   // Подписываемся на обновления HUD из игры.
   useEffect(() => {
@@ -47,11 +48,11 @@ export default function HUD() {
 
   return (
     // pointer-events-none — HUD не перехватывает касания (они идут в джойстик).
+    // Кнопки внутри HUD при этом переопределяют pointer-events:auto.
     // max-w + mx-auto — на широких экранах HUD не растягивается на всю ширину.
-    // pr-16 — справа резервируем место под кнопку EXIT (top-right).
-    <div className="pointer-events-none absolute inset-x-0 top-0 z-20 mx-auto max-w-md p-3 pr-16">
-      {/* Верхняя строка: волна по центру, level / kills по бокам */}
-      <div className="flex items-center justify-between font-mono text-sm text-slate-200">
+    <div className="pointer-events-none absolute inset-x-0 top-0 z-20 mx-auto max-w-md p-3">
+      {/* Верхняя строка: 4 плашки одинакового стиля — LVL / WAVE / KILLS / EXIT */}
+      <div className="flex items-center justify-between gap-2 font-mono text-sm text-slate-200">
         <span className="rounded bg-slate-900/70 px-2 py-1">
           LVL <span className="text-amber-400">{hud.level}</span>
         </span>
@@ -62,6 +63,27 @@ export default function HUD() {
         <span className="rounded bg-slate-900/70 px-2 py-1">
           ☠ <span className="text-red-400">{hud.kills}</span>
         </span>
+        {/* EXIT — выглядит как остальные плашки, но кликабелен.
+            Тап 1 — переход в «confirm»-режим (надпись YES?), тап 2 — выход.
+            Через 3с без второго тапа сбрасывается обратно. */}
+        <button
+          onClick={() => {
+            if (confirmExit) {
+              onExit();
+            } else {
+              setConfirmExit(true);
+              setTimeout(() => setConfirmExit(false), 3000);
+            }
+          }}
+          className={
+            'pointer-events-auto rounded px-2 py-1 transition-colors ' +
+            (confirmExit
+              ? 'bg-red-900/80 text-red-100 active:bg-red-800'
+              : 'bg-slate-900/70 text-slate-200 active:bg-slate-800')
+          }
+        >
+          {confirmExit ? 'YES?' : 'EXIT'}
+        </button>
       </div>
 
       {/* Подстрока: враги в волне + время */}

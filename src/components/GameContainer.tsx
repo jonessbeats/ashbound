@@ -46,19 +46,11 @@ export default function GameContainer({ locationId, onExit }: Props) {
       <div ref={hostRef} className="absolute inset-0" />
 
       {/* Слои React-UI поверх игры */}
-      <HUD />
+      <HUD onExit={onExit} />
       <WaveBanner />
       <Joystick />
       <UpgradeModal />
       <GameOverModal />
-
-      {/* Кнопка выхода к выбору локаций (верхний правый угол) */}
-      <button
-        onClick={onExit}
-        className="absolute right-3 top-3 z-30 min-h-[32px] rounded border border-slate-700 bg-slate-900/80 px-2.5 font-mono text-xs text-slate-400 active:bg-slate-800"
-      >
-        EXIT
-      </button>
     </div>
   );
 }
