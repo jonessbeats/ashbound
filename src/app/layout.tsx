@@ -10,6 +10,9 @@ import Providers from '@/components/Providers';
 export const metadata: Metadata = {
   title: 'Ashbound: Base Survivors',
   description: 'Mobile-first pixel RPG survivor roguelite on Base.',
+  other: {
+    'base:app_id': '6a144c85ed0edcf2e9a876fb',
+  },
 };
 
 // Next.js сам ставит мета-тег viewport из этого объекта.
