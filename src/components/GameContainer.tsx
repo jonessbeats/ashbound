@@ -26,14 +26,15 @@ export default function GameContainer({ locationId, onExit }: Props) {
 
   useEffect(() => {
     if (!hostRef.current || gameRef.current) return;
-    gameRef.current = createGame(hostRef.current);
 
-    // Ждём SCENE_READY от Phaser — только тогда шлём локацию.
-    // Это надёжнее таймаута: работает на любой скорости устройства.
+    // Навешиваем listener ДО создания игры — иначе SCENE_READY может
+    // эмититься раньше чем мы успеваем подписаться.
     const onReady = () => {
       EventBus.emit(GameEvents.START_LOCATION, locationId);
     };
     EventBus.once(GameEvents.SCENE_READY, onReady);
+
+    gameRef.current = createGame(hostRef.current);
 
     return () => {
       EventBus.off(GameEvents.SCENE_READY, onReady);
