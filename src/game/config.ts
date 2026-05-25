@@ -26,10 +26,13 @@ export const ENEMY_CONFIG = {
   skeleton: { hp: 40, speed: 70, contactDamage: 10, xp: 7, size: 26, weight: 3 },
   elite: { hp: 220, speed: 60, contactDamage: 20, xp: 40, size: 38, weight: 0 },
   // Tiny RPG Forest by Ansimuz (CC0)
-  // Treant — медленный живой лес, много HP, тяжёлый удар
   treant: { hp: 160, speed: 38, contactDamage: 18, xp: 22, size: 42, weight: 0 },
-  // Mole — юркий крот, мало HP, быстрый, ныряет близко
   mole: { hp: 18, speed: 150, contactDamage: 8, xp: 6, size: 22, weight: 0 },
+  // 2D Pixel Dungeon Asset Pack by Pixel_Poem (commercial OK)
+  // skeleton2 — тяжёлый скелет, медленнее но крепче
+  skeleton2: { hp: 80, speed: 55, contactDamage: 15, xp: 12, size: 32, weight: 0 },
+  // vampire — быстрый, хлипкий, но больно кусает
+  vampire: { hp: 30, speed: 120, contactDamage: 14, xp: 10, size: 28, weight: 0 },
 } as const;
 
 // Параметры босса (ТЗ §21). HP/урон масштабируются множителем волны.

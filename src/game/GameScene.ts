@@ -32,8 +32,12 @@ export default class GameScene extends Phaser.Scene {
   private enemyProjectiles!: Phaser.Physics.Arcade.Group; // снаряды врагов (огонь босса)
   private orbs!: Phaser.Physics.Arcade.Group;
   private decorSprites: Phaser.GameObjects.Sprite[] = []; // статичный декор арены
+  private torchSprites: Phaser.GameObjects.Sprite[] = []; // анимированные факелы по краям
   private boss: Boss | null = null; // активный босс (только в боссовой волне)
   private colliders: Phaser.Physics.Arcade.Collider[] = [];
+  private chest: Phaser.GameObjects.Sprite | null = null; // сундук после волны
+  private chestOpen = false; // уже открыт
+  private flasks!: Phaser.Physics.Arcade.Group; // колбы дропа HP
 
   // ── Текущая локация и волны ──
   private location!: LocationConfig; // какую локацию играем
@@ -74,6 +78,7 @@ export default class GameScene extends Phaser.Scene {
     this.projectiles = this.physics.add.group();
     this.enemyProjectiles = this.physics.add.group();
     this.orbs = this.physics.add.group();
+    this.flasks = this.physics.add.group();
 
     // Враги расталкиваются друг от друга — чтобы не слипались в один комок
     // при беге к игроку. Коллайдер живёт всю сцену, не в setupCollisions
@@ -166,6 +171,8 @@ export default class GameScene extends Phaser.Scene {
 
     // Разбросать декор локации поверх пола.
     this.scatterDecor(loc);
+    // Расставить факелы по периметру арены.
+    this.placeTorches();
 
     // Пересоздать игрока со свежими статами.
     if (this.player) this.player.destroy();
@@ -182,6 +189,9 @@ export default class GameScene extends Phaser.Scene {
     this.vacuuming = false;
     this.finished = false;
     this.running = true;
+    this.chest = null;
+    this.chestOpen = false;
+    this.flasks.clear(true, true);
     this.physics.resume();
 
     // Запустить первую волну (с короткой паузой-объявлением).
@@ -221,6 +231,96 @@ export default class GameScene extends Phaser.Scene {
       if (Math.random() < 0.5) decor.setFlipX(true);
       this.decorSprites.push(decor);
     }
+  }
+
+  // Расставить анимированные факелы по периметру арены.
+  private placeTorches(): void {
+    this.torchSprites.forEach((s) => s.destroy());
+    this.torchSprites = [];
+    const step = 200; // каждые 200px по периметру
+    const positions: { x: number; y: number }[] = [];
+    // Верхняя и нижняя границы
+    for (let x = step; x < ARENA.width; x += step) {
+      positions.push({ x, y: 40 });
+      positions.push({ x, y: ARENA.height - 40 });
+    }
+    // Левая и правая границы
+    for (let y = step; y < ARENA.height; y += step) {
+      positions.push({ x: 40, y });
+      positions.push({ x: ARENA.width - 40, y });
+    }
+    for (const { x, y } of positions) {
+      const t = this.add.sprite(x, y, 'torch', 0).setDepth(2).setScale(3);
+      t.play('torch-burn');
+      this.torchSprites.push(t);
+    }
+  }
+
+  // Заспавнить сундук в центре арены после зачистки волны.
+  private spawnChest(): void {
+    if (this.chest) return;
+    this.chestOpen = false;
+    const x = ARENA.width / 2 + Phaser.Math.Between(-80, 80);
+    const y = ARENA.height / 2 + Phaser.Math.Between(-80, 80);
+    this.chest = this.add.sprite(x, y, 'chest-closed', 0).setDepth(3).setScale(3);
+    this.chest.play('chest-idle');
+    // Текстовая подсказка над сундуком
+    const label = this.add.text(x, y - 28, '[ CHEST ]', {
+      fontSize: '8px', color: '#ffd700', stroke: '#000', strokeThickness: 2,
+    }).setOrigin(0.5).setDepth(10);
+    this.chest.setData('label', label);
+  }
+
+  // Заспавнить колбу хилки рядом с убитым врагом (с вероятностью).
+  private maybeSpawnFlask(x: number, y: number): void {
+    if (Math.random() > 0.08) return; // 8% шанс
+    const flask = this.physics.add.sprite(x, y, 'flask', 0).setDepth(3).setScale(3);
+    flask.play('flask-glow');
+    (flask.body as Phaser.Physics.Arcade.Body).setImmovable(true);
+    this.flasks.add(flask);
+  }
+
+  // Проверить подбор сундука и колб игроком (зовётся каждый кадр).
+  private handlePickups(): void {
+    // Сундук — подходишь → открывается → апгрейд
+    if (this.chest && !this.chestOpen && this.running) {
+      const dist = Phaser.Math.Distance.Between(
+        this.player.x, this.player.y, this.chest.x, this.chest.y,
+      );
+      if (dist < 40) {
+        this.chestOpen = true;
+        this.chest.play('chest-opening');
+        // Убираем подсказку
+        const label = this.chest.getData('label') as Phaser.GameObjects.Text;
+        if (label) label.destroy();
+        // Небольшая задержка — анимация открытия
+        this.time.delayedCall(400, () => {
+          if (this.chest) { this.chest.destroy(); this.chest = null; }
+          // Выдаём апгрейд как при level up
+          if (this.running) {
+            this.running = false;
+            this.physics.pause();
+            EventBus.emit(GameEvents.LEVEL_UP, rollUpgrades());
+          }
+        });
+      }
+    }
+
+    // Колбы — подходишь → +25 HP
+    this.flasks.getChildren().forEach((obj) => {
+      const flask = obj as Phaser.GameObjects.Sprite;
+      if (!flask.active) return;
+      const dist = Phaser.Math.Distance.Between(
+        this.player.x, this.player.y, flask.x, flask.y,
+      );
+      if (dist < 30) {
+        flask.destroy();
+        const heal = 25;
+        this.player.hpCurrent = Math.min(
+          this.player.hpCurrent + heal, this.player.stats.maxHp,
+        );
+      }
+    });
   }
 
   // ── Настройка пересечений (идемпотентно — снимаем старые) ──
@@ -287,6 +387,7 @@ export default class GameScene extends Phaser.Scene {
     this.handleAutoAttack();
     this.handleProjectiles(delta);
     this.handleOrbMagnet();
+    this.handlePickups();
     this.pushHud(delta);
   }
 
@@ -351,6 +452,14 @@ export default class GameScene extends Phaser.Scene {
     this.waveActive = true;
     this.enemiesToSpawn = wave.count;
     this.nextWaveSpawnAt = this.elapsedMs;
+
+    // Убираем сундук если игрок не успел подобрать до начала волны
+    if (this.chest) {
+      const label = this.chest.getData('label') as Phaser.GameObjects.Text;
+      if (label) label.destroy();
+      this.chest.destroy();
+      this.chest = null;
+    }
 
     // Боссовая волна — сразу спавним дракона в центре верхнего края арены.
     if (wave.boss) {
@@ -438,15 +547,15 @@ export default class GameScene extends Phaser.Scene {
   // Волна зачищена: сначала собираем оставшийся XP, потом — следующая волна или победа.
   private onWaveCleared(): void {
     this.waveIndex++;
-    // Сразу гасим waveActive, чтобы повторная проверка зачистки не сработала
-    // во время паузы автосбора (700мс).
     this.waveActive = false;
     const isVictory = this.waveIndex >= this.location.waves.length;
     this.vacuumOrbs(() => {
       if (isVictory) {
-        this.endRun(true); // волн больше нет — локация пройдена
+        this.endRun(true);
       } else {
-        this.startIntermission(); // пауза перед следующей волной
+        // Сундук появляется каждые 2 волны (волны 2, 4, 6...)
+        if (this.waveIndex % 2 === 0) this.spawnChest();
+        this.startIntermission();
       }
     });
   }
@@ -658,6 +767,9 @@ export default class GameScene extends Phaser.Scene {
     enemy.destroy();
     this.kills++;
     this.orbs.add(new XPOrb(this, x, y, xpValue));
+    // Шанс дропа колбы (с элитных врагов чаще)
+    const flaskChance = (enemy.kind === 'elite' || enemy.kind === 'treant') ? 0.22 : 0.06;
+    if (Math.random() < flaskChance) this.maybeSpawnFlask(x, y);
   }
 
   // ════════════════ XP / LEVEL UP ════════════════

@@ -108,6 +108,34 @@ export default class BootScene extends Phaser.Scene {
       frameWidth: 24,
       frameHeight: 24,
     });
+    // 2D Pixel Dungeon Asset Pack by Pixel_Poem (commercial OK).
+    // Skeleton2 (тяжёлый): 8 кадров 32×32. Vampire: 8 кадров 32×32.
+    this.load.spritesheet('enemy-skeleton2', '/assets/sprites/enemy_skeleton2.png', {
+      frameWidth: 32,
+      frameHeight: 32,
+    });
+    this.load.spritesheet('enemy-vampire', '/assets/sprites/enemy_vampire.png', {
+      frameWidth: 32,
+      frameHeight: 32,
+    });
+
+    // Предметы — 2D Pixel Dungeon Asset Pack by Pixel_Poem (commercial OK).
+    this.load.spritesheet('torch', '/assets/sprites/torch.png', {
+      frameWidth: 16,
+      frameHeight: 16,
+    });
+    this.load.spritesheet('chest-closed', '/assets/sprites/chest_closed.png', {
+      frameWidth: 16,
+      frameHeight: 16,
+    });
+    this.load.spritesheet('chest-open', '/assets/sprites/chest_open.png', {
+      frameWidth: 16,
+      frameHeight: 16,
+    });
+    this.load.spritesheet('flask', '/assets/sprites/flask.png', {
+      frameWidth: 16,
+      frameHeight: 16,
+    });
 
     // XP-монеты и гемы — Tiny RPG Forest by Ansimuz (CC0).
     // coin: 4 кадра 5×7. gem: 4 кадра 7×7.
@@ -201,15 +229,45 @@ export default class BootScene extends Phaser.Scene {
       elite: 4,
       treant: 4,
       mole: 4,
+      skeleton2: 8,
+      vampire: 8,
     };
     for (const [k, frames] of Object.entries(kinds)) {
       this.anims.create({
-        key: 'enemy-' + k, // ключ анимации = ключ текстуры
+        key: 'enemy-' + k,
         frames: this.anims.generateFrameNumbers('enemy-' + k, { start: 0, end: frames - 1 }),
         frameRate: 7,
         repeat: -1,
       });
     }
+
+    // Факел — анимированный (4 кадра, циклично).
+    this.anims.create({
+      key: 'torch-burn',
+      frames: this.anims.generateFrameNumbers('torch', { start: 0, end: 3 }),
+      frameRate: 8,
+      repeat: -1,
+    });
+    // Сундук закрытый (idle) и открытый (один раз при подборе).
+    this.anims.create({
+      key: 'chest-idle',
+      frames: this.anims.generateFrameNumbers('chest-closed', { start: 0, end: 3 }),
+      frameRate: 6,
+      repeat: -1,
+    });
+    this.anims.create({
+      key: 'chest-opening',
+      frames: this.anims.generateFrameNumbers('chest-open', { start: 0, end: 3 }),
+      frameRate: 10,
+      repeat: 0,
+    });
+    // Колба — мерцает (4 кадра, циклично).
+    this.anims.create({
+      key: 'flask-glow',
+      frames: this.anims.generateFrameNumbers('flask', { start: 0, end: 3 }),
+      frameRate: 6,
+      repeat: -1,
+    });
     // Анимация босса-дракона (6 кадров взмаха крыльев).
     this.anims.create({
       key: 'boss-dragon-fly',

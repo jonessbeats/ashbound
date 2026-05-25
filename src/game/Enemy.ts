@@ -18,6 +18,9 @@ const FRAME_SIZE: Record<EnemyKind, { w: number; h: number }> = {
   // Tiny RPG Forest by Ansimuz (CC0)
   treant: { w: 31, h: 35 },
   mole: { w: 24, h: 24 },
+  // 2D Pixel Dungeon Asset Pack by Pixel_Poem (commercial OK)
+  skeleton2: { w: 32, h: 32 },
+  vampire: { w: 32, h: 32 },
 };
 
 export default class Enemy extends Phaser.Physics.Arcade.Sprite {

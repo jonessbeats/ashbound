@@ -56,10 +56,7 @@ export function saveRun(result: RunResult): LocalProgress {
 }
 
 // Открыта ли локация для игры.
-// Первая открыта всегда; остальные — если пройдена предыдущая.
-export function isLocationUnlocked(locationId: string, cleared: string[]): boolean {
-  if (locationId === FIRST_LOCATION_ID) return true;
-  const idx = LOCATIONS.findIndex((l) => l.id === locationId);
-  if (idx <= 0) return false;
-  return cleared.includes(LOCATIONS[idx - 1].id);
+// DEV MODE: все локации открыты всегда.
+export function isLocationUnlocked(_locationId: string, _cleared: string[]): boolean {
+  return true;
 }
