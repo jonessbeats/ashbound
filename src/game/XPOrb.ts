@@ -18,7 +18,7 @@ export default class XPOrb extends Phaser.Physics.Arcade.Sprite {
 
     this.value = value;
     this.setDepth(4);
-    this.setScale(value >= 30 ? 3.5 : 3);
+    this.setScale(value >= 30 ? 2.0 : 1.5);
 
     // Запускаем анимацию вращения
     this.play(texKey + '-spin');
