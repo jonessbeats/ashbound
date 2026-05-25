@@ -721,7 +721,7 @@ export default class GameScene extends Phaser.Scene {
       kills: this.kills,
       score: scoreFromRun(this.kills, this.player.level, survivalSec),
       timeSec: survivalSec,
-      wave: this.waveIndex + 1,
+      wave: Math.min(this.waveIndex + 1, this.location.waves.length),
       totalWaves: this.location.waves.length,
       enemiesLeft: this.enemiesToSpawn + this.countAliveEnemies(),
       bossActive: !!(this.boss && this.boss.active),

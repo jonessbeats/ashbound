@@ -25,8 +25,10 @@ type Screen = 'menu' | 'select' | 'game';
 
 export default function Page() {
   const [screen, setScreen] = useState<Screen>('menu');
-  // Какую локацию запускать — выбирается на экране select.
   const [locationId, setLocationId] = useState<string | null>(null);
+  // Инкрементируется при каждом старте — гарантирует полный remount GameContainer
+  // даже если выбрана та же локация что в прошлый раз.
+  const [gameKey, setGameKey] = useState(0);
 
   return (
     <main>
@@ -36,6 +38,7 @@ export default function Page() {
         <LocationSelect
           onPick={(id) => {
             setLocationId(id);
+            setGameKey((k) => k + 1);
             setScreen('game');
           }}
           onBack={() => setScreen('menu')}
@@ -43,7 +46,11 @@ export default function Page() {
       )}
 
       {screen === 'game' && locationId && (
-        <GameContainer locationId={locationId} onExit={() => setScreen('select')} />
+        <GameContainer
+          key={gameKey}
+          locationId={locationId}
+          onExit={() => setScreen('select')}
+        />
       )}
     </main>
   );
