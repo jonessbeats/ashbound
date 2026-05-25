@@ -32,7 +32,6 @@ export default class GameScene extends Phaser.Scene {
   private enemyProjectiles!: Phaser.Physics.Arcade.Group; // снаряды врагов (огонь босса)
   private orbs!: Phaser.Physics.Arcade.Group;
   private decorSprites: Phaser.GameObjects.Sprite[] = []; // статичный декор арены
-  private torchSprites: Phaser.GameObjects.Sprite[] = []; // анимированные факелы по краям
   private boss: Boss | null = null; // активный босс (только в боссовой волне)
   private colliders: Phaser.Physics.Arcade.Collider[] = [];
   private chest: Phaser.GameObjects.Sprite | null = null; // сундук после волны
@@ -171,8 +170,6 @@ export default class GameScene extends Phaser.Scene {
 
     // Разбросать декор локации поверх пола.
     this.scatterDecor(loc);
-    // Расставить факелы по периметру арены.
-    this.placeTorches();
 
     // Пересоздать игрока со свежими статами.
     if (this.player) this.player.destroy();
@@ -233,28 +230,6 @@ export default class GameScene extends Phaser.Scene {
     }
   }
 
-  // Расставить анимированные факелы по периметру арены.
-  private placeTorches(): void {
-    this.torchSprites.forEach((s) => s.destroy());
-    this.torchSprites = [];
-    const step = 200; // каждые 200px по периметру
-    const positions: { x: number; y: number }[] = [];
-    // Верхняя и нижняя границы
-    for (let x = step; x < ARENA.width; x += step) {
-      positions.push({ x, y: 40 });
-      positions.push({ x, y: ARENA.height - 40 });
-    }
-    // Левая и правая границы
-    for (let y = step; y < ARENA.height; y += step) {
-      positions.push({ x: 40, y });
-      positions.push({ x: ARENA.width - 40, y });
-    }
-    for (const { x, y } of positions) {
-      const t = this.add.sprite(x, y, 'torch', 0).setDepth(2).setScale(3);
-      t.play('torch-burn');
-      this.torchSprites.push(t);
-    }
-  }
 
   // Заспавнить сундук в центре арены после зачистки волны.
   private spawnChest(): void {
