@@ -237,21 +237,20 @@ export default class GameScene extends Phaser.Scene {
   private placeTorches(): void {
     this.torchSprites.forEach((s) => s.destroy());
     this.torchSprites = [];
-    // Факелы только в подземных локациях
-    const dungeonLocations = ['ashen-ruins', 'frozen-crypt'];
-    if (!dungeonLocations.includes(this.location.id)) return;
-    const step = 200;
+    const step = 200; // каждые 200px по периметру
     const positions: { x: number; y: number }[] = [];
+    // Верхняя и нижняя границы
     for (let x = step; x < ARENA.width; x += step) {
       positions.push({ x, y: 40 });
       positions.push({ x, y: ARENA.height - 40 });
     }
+    // Левая и правая границы
     for (let y = step; y < ARENA.height; y += step) {
       positions.push({ x: 40, y });
       positions.push({ x: ARENA.width - 40, y });
     }
     for (const { x, y } of positions) {
-      const t = this.add.sprite(x, y, 'torch', 0).setDepth(2).setScale(1.5);
+      const t = this.add.sprite(x, y, 'torch', 0).setDepth(2).setScale(3);
       t.play('torch-burn');
       this.torchSprites.push(t);
     }

@@ -92,11 +92,6 @@ export default class BootScene extends Phaser.Scene {
       frameWidth: 18,
       frameHeight: 19,
     });
-    // Декор подземелий — P_P_FREE_RPG_TILESET by Pixel_Poem (commercial OK). 12 объектов 24×24.
-    this.load.spritesheet('decor-dungeon', '/assets/tiles/decor_dungeon.png', {
-      frameWidth: 24,
-      frameHeight: 24,
-    });
     // Декор леса — Tiny RPG Forest by Ansimuz (CC0). 8 объектов, кадр 64×64.
     this.load.spritesheet('decor-forest', '/assets/tiles/decor_forest.png', {
       frameWidth: 64,
