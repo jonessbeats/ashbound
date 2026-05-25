@@ -28,10 +28,11 @@ export default function GameContainer({ locationId, onExit }: Props) {
     if (!hostRef.current || gameRef.current) return;
     gameRef.current = createGame(hostRef.current);
 
-    // Сцена грузится не мгновенно — даём ей кадр, потом шлём выбранную локацию.
+    // Сцена грузится асинхронно — ждём её готовности, потом шлём локацию.
+    // 300мс достаточно даже на слабых мобильных устройствах.
     const t = setTimeout(() => {
       EventBus.emit(GameEvents.START_LOCATION, locationId);
-    }, 120);
+    }, 300);
 
     return () => {
       clearTimeout(t);

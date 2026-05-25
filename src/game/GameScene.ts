@@ -17,7 +17,7 @@ import XPOrb from './XPOrb';
 import { ARENA, BOSS_CONFIG, scoreFromRun, xpForLevel } from './config';
 import { rollUpgrades, applyUpgrade } from './upgrades';
 import { EventBus, GameEvents } from './EventBus';
-import { getLocation, FIRST_LOCATION_ID } from './locations';
+import { getLocation } from './locations';
 import type { LocationConfig, WaveConfig } from './locations';
 import type { EnemyKind, HudState, RunResult } from './types';
 
@@ -83,8 +83,9 @@ export default class GameScene extends Phaser.Scene {
     this.setupInput();
     this.setupEventBus();
 
-    // Локация по умолчанию — первая. React пришлёт START_LOCATION с нужной.
-    this.beginLocation(FIRST_LOCATION_ID);
+    // НЕ запускаем локацию здесь — ждём START_LOCATION от React (GameContainer).
+    // Запуск до получения события вызывал баг: выбранная не-первая локация
+    // перезаписывалась первой которая стартовала в create().
   }
 
   // ── Настройка ввода с клавиатуры (desktop, ТЗ §11) ──
@@ -405,8 +406,8 @@ export default class GameScene extends Phaser.Scene {
 
   // Логика волн — зовётся каждый кадр.
   private handleWaves(): void {
-    // Если локация уже завершена (vacuum или endRun) — ничего не делаем.
-    if (this.finished) return;
+    // Если локация завершена или идёт автосбор XP — ничего не делаем.
+    if (this.finished || this.vacuuming) return;
 
     // Идёт пауза между волнами — ждём её конца.
     if (!this.waveActive) {
@@ -418,7 +419,7 @@ export default class GameScene extends Phaser.Scene {
     if (this.enemiesToSpawn > 0 && this.elapsedMs >= this.nextWaveSpawnAt) {
       this.spawnWaveEnemy();
       this.enemiesToSpawn--;
-      this.nextWaveSpawnAt = this.elapsedMs + 280; // интервал внутри волны
+      this.nextWaveSpawnAt = this.elapsedMs + 280;
     }
 
     // Волна зачищена: все враги заспавнены и убиты, И босс повержен (если был).
