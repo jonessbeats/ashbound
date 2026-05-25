@@ -179,15 +179,30 @@ export default function GameOverModal() {
 
         {mint.error && <p className="text-center text-xs text-red-400">{mint.error}</p>}
 
-        {mint.isSuccess && mint.txHash && (
-          <a
-            href={`https://${isTestnet ? 'sepolia.' : ''}basescan.org/tx/${mint.txHash}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-center font-mono text-xs text-sky-400 underline"
-          >
-            View transaction ↗
-          </a>
+        {/* После успешного минта — показываем бейдж */}
+        {mint.isSuccess && numericLocationId !== null && (
+          <div className="flex flex-col items-center gap-2 rounded-xl border border-amber-500/30 bg-slate-900/80 p-4">
+            <img
+              src={`/badges/${numericLocationId}.png`}
+              alt="Run Badge"
+              className="h-32 w-32 rounded-lg"
+              style={{ imageRendering: 'pixelated' }}
+            />
+            <p className="font-mono text-sm text-amber-400">✓ BADGE MINTED</p>
+            <p className="text-center text-xs text-slate-400">
+              {result.locationName} — soulbound to your wallet forever
+            </p>
+            {mint.txHash && (
+              <a
+                href={`https://${isTestnet ? 'sepolia.' : ''}basescan.org/tx/${mint.txHash}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-mono text-xs text-sky-400 underline"
+              >
+                View on Basescan ↗
+              </a>
+            )}
+          </div>
         )}
 
         <button
