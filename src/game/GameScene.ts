@@ -99,36 +99,43 @@ export default class GameScene extends Phaser.Scene {
 
   // ── Подписка на события от React ──
   private setupEventBus(): void {
-    EventBus.on(GameEvents.MOVE_INPUT, (v: { x: number; y: number }) => {
+    // Сохраняем ссылки на хэндлеры чтобы в SHUTDOWN снять ТОЛЬКО свои,
+    // а не все подряд (EventBus.off без хэндлера сносит всё, включая
+    // хэндлеры новой сцены которая уже начала монтироваться).
+    const onMove = (v: { x: number; y: number }) => {
       this.moveVec.set(v.x, v.y);
-    });
+    };
 
-    EventBus.on(GameEvents.UPGRADE_PICKED, (id: Parameters<typeof applyUpgrade>[1]) => {
+    const onUpgrade = (id: Parameters<typeof applyUpgrade>[1]) => {
       applyUpgrade(this.player, id);
       this.running = true;
       this.physics.resume();
-      // Если за время уровня накопилось ещё левелапов — открываем следующую модалку.
       if (this.pendingLevelUps > 0) {
-        // Через таймер — чтобы React успел закрыть текущую модалку.
         this.time.delayedCall(50, () => this.triggerLevelUp());
       }
-    });
+    };
 
-    // Запуск конкретной локации (из экрана выбора локаций).
-    EventBus.on(GameEvents.START_LOCATION, (locationId: string) => {
-      this.beginLocation(locationId);
-    });
+    const onStartLocation = (locationId: string) => {
+      // delayedCall(0) откладывает на следующий tick — гарантирует что
+      // Phaser завершил create() до того как beginLocation изменит сцену.
+      this.time.delayedCall(0, () => this.beginLocation(locationId));
+    };
 
-    // Рестарт — заново ту же локацию.
-    EventBus.on(GameEvents.RESTART, () => {
-      this.beginLocation(this.location.id);
-    });
+    const onRestart = () => {
+      this.time.delayedCall(0, () => this.beginLocation(this.location?.id ?? ''));
+    };
 
+    EventBus.on(GameEvents.MOVE_INPUT, onMove);
+    EventBus.on(GameEvents.UPGRADE_PICKED, onUpgrade);
+    EventBus.on(GameEvents.START_LOCATION, onStartLocation);
+    EventBus.on(GameEvents.RESTART, onRestart);
+
+    // SHUTDOWN: снимаем ТОЛЬКО свои хэндлеры по ссылке.
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
-      EventBus.off(GameEvents.MOVE_INPUT);
-      EventBus.off(GameEvents.UPGRADE_PICKED);
-      EventBus.off(GameEvents.START_LOCATION);
-      EventBus.off(GameEvents.RESTART);
+      EventBus.off(GameEvents.MOVE_INPUT, onMove);
+      EventBus.off(GameEvents.UPGRADE_PICKED, onUpgrade);
+      EventBus.off(GameEvents.START_LOCATION, onStartLocation);
+      EventBus.off(GameEvents.RESTART, onRestart);
     });
   }
 
