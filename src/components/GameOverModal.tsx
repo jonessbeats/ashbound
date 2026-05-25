@@ -23,7 +23,16 @@ export default function GameOverModal() {
   const [totalRuns, setTotalRuns] = useState(0);
 
   const { isConnected } = useAccount();
-  const mint = useMintRunBadge();
+
+  // Числовой locationId — то, что принимает контракт. Считаем заранее,
+  // не дожидаясь результата (если result.locationId неизвестен — null,
+  // хук не активен).
+  const numericLocationId =
+    result && getLocationIndex(result.locationId) >= 0
+      ? getLocationIndex(result.locationId)
+      : null;
+
+  const mint = useMintRunBadge(numericLocationId);
 
   const mintRef = useRef(mint);
   mintRef.current = mint;
@@ -90,12 +99,17 @@ export default function GameOverModal() {
   ];
 
   // ── Текст кнопки минта по стадии транзакции ──
+  // Минт ДОСТУПЕН ТОЛЬКО при полной победе над локацией (включая босса).
+  // Если уже минтил эту локацию ранее — кнопка disabled со специальным текстом.
   let mintLabel = 'MINT RUN BADGE';
-  if (mint.isSwitching) mintLabel = 'SWITCH NETWORK IN WALLET…';
+  if (mint.alreadyMinted) mintLabel = '✓ ALREADY MINTED';
+  else if (mint.isSwitching) mintLabel = 'SWITCH NETWORK IN WALLET…';
   else if (mint.isPending) mintLabel = 'CONFIRM IN WALLET…';
   else if (mint.isConfirming) mintLabel = 'MINTING ON-CHAIN…';
   else if (mint.isSuccess) mintLabel = '✓ BADGE MINTED';
   const mintBusy = mint.isSwitching || mint.isPending || mint.isConfirming;
+  const canMint =
+    victory && !mintBusy && !mint.isSuccess && !mint.alreadyMinted && numericLocationId !== null;
 
   return (
     <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-slate-950/90 p-5">
@@ -150,13 +164,13 @@ export default function GameOverModal() {
           {victory ? 'REPLAY LOCATION' : 'RETRY'}
         </button>
 
-        {/* Минт бейджа */}
-        {!isConnected ? (
+        {/* Минт бейджа — только при победе. После смерти кнопка скрыта. */}
+        {!victory ? null : !isConnected ? (
           <WalletConnect className="w-full" />
         ) : (
           <button
-            onClick={() => mint.mint(result)}
-            disabled={mintBusy || mint.isSuccess}
+            onClick={() => numericLocationId !== null && mint.mint(numericLocationId)}
+            disabled={!canMint}
             className="min-h-[52px] rounded-lg border border-amber-500/50 bg-slate-900 font-mono text-base text-amber-300 transition-colors active:bg-amber-950/60 disabled:opacity-60"
           >
             {mintLabel}

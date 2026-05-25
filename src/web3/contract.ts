@@ -1,26 +1,32 @@
 // ────────────────────────────────────────────────────────────────
-// contract.ts — ABI контракта AshboundRunBadge.
-// Минимальный ABI: только то, что вызывает фронтенд (ТЗ §37).
-// Полный ABI генерируется Hardhat'ом в artifacts/ после компиляции.
+// contract.ts — ABI контракта AshboundRunBadge (SBT v2).
+//
+// Контракт — soulbound: 1 минт на адрес на локацию, transfer запрещён.
+// На фронте нам нужны только функции для минта и читалок состояния.
 // ────────────────────────────────────────────────────────────────
 
 export { CONTRACT_ADDRESS } from './chains';
 
-// ABI — описание функций контракта для viem/wagmi.
-// Здесь только mintRunBadge + событие RunBadgeMinted + balanceOf.
 export const ASHBOUND_ABI = [
+  // ── Mint ─────────────────────────────────────────────────────
   {
     type: 'function',
     name: 'mintRunBadge',
     stateMutability: 'nonpayable',
+    inputs: [{ name: 'locationId', type: 'uint8' }],
+    outputs: [{ name: 'tokenId', type: 'uint256' }],
+  },
+
+  // ── Reads ────────────────────────────────────────────────────
+  {
+    type: 'function',
+    name: 'hasMinted',
+    stateMutability: 'view',
     inputs: [
       { name: 'player', type: 'address' },
-      { name: 'score', type: 'uint256' },
-      { name: 'survivalTime', type: 'uint256' },
-      { name: 'level', type: 'uint256' },
-      { name: 'kills', type: 'uint256' },
+      { name: 'locationId', type: 'uint8' },
     ],
-    outputs: [{ name: 'tokenId', type: 'uint256' }],
+    outputs: [{ name: '', type: 'bool' }],
   },
   {
     type: 'function',
@@ -37,15 +43,35 @@ export const ASHBOUND_ABI = [
     outputs: [{ name: '', type: 'uint256' }],
   },
   {
+    type: 'function',
+    name: 'mintedPerLocation',
+    stateMutability: 'view',
+    inputs: [{ name: 'locationId', type: 'uint8' }],
+    outputs: [{ name: '', type: 'uint256' }],
+  },
+  {
+    type: 'function',
+    name: 'paused',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ name: '', type: 'bool' }],
+  },
+
+  // ── Events ───────────────────────────────────────────────────
+  {
     type: 'event',
     name: 'RunBadgeMinted',
     inputs: [
       { name: 'player', type: 'address', indexed: true },
       { name: 'tokenId', type: 'uint256', indexed: true },
-      { name: 'score', type: 'uint256', indexed: false },
-      { name: 'survivalTime', type: 'uint256', indexed: false },
-      { name: 'level', type: 'uint256', indexed: false },
-      { name: 'kills', type: 'uint256', indexed: false },
+      { name: 'locationId', type: 'uint8', indexed: true },
+      { name: 'edition', type: 'uint256', indexed: false },
+      { name: 'mintedAt', type: 'uint256', indexed: false },
     ],
   },
+
+  // ── Errors (для нормальных сообщений фронта) ────────────────
+  { type: 'error', name: 'InvalidLocation', inputs: [] },
+  { type: 'error', name: 'AlreadyMintedForLocation', inputs: [] },
+  { type: 'error', name: 'SoulboundNonTransferable', inputs: [] },
 ] as const;

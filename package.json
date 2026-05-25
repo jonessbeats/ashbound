@@ -9,7 +9,10 @@
     "lint": "next lint",
     "contracts:compile": "hardhat compile",
     "contracts:deploy": "hardhat run scripts/deploy.ts --network baseSepolia",
-    "smoketest": "node smoketest.cjs"
+    "smoketest": "node smoketest.cjs",
+    "contracts:deploy:mainnet": "hardhat run scripts/deploy.ts --network base",
+    "contracts:verify:mainnet": "hardhat verify --network base",
+    "contracts:verify:sepolia": "hardhat verify --network baseSepolia"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.100.10",
@@ -21,20 +24,19 @@
     "wagmi": "^2.19.5"
   },
   "devDependencies": {
-    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
-    "@openzeppelin/contracts": "^5.6.1",
     "@types/node": "20.14.13",
     "@types/react": "18.3.3",
     "@types/react-dom": "18.3.0",
     "autoprefixer": "10.4.19",
-    "dotenv": "^17.4.2",
     "eslint": "8.57.0",
     "eslint-config-next": "^14.2.35",
-    "hardhat": "^2.28.6",
     "playwright": "^1.60.0",
     "postcss": "8.4.40",
     "tailwindcss": "3.4.7",
-    "ts-node": "^10.9.2",
-    "typescript": "5.5.4"
+    "typescript": "5.5.4",
+    "hardhat": "^2.22.10",
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@openzeppelin/contracts": "^5.1.0",
+    "dotenv": "^16.4.5"
   }
 }

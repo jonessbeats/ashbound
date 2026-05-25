@@ -19,9 +19,15 @@ const config: HardhatUserConfig = {
   solidity: {
     version: '0.8.28',
     settings: {
-      optimizer: { enabled: true, runs: 200 },
+      optimizer: { enabled: true, runs: 200 }, // дешевле gas (ТЗ §38)
+      // Cancun нужен для mcopy opcode, который использует OZ v5.1+.
+      // Base mainnet и Sepolia поддерживают Cancun с весны 2024.
       evmVersion: 'cancun',
-      viaIR: true, // дешевле gas (ТЗ §38)
+      // viaIR — промежуточный IR-проход оптимизатора. Лечит "Stack too deep"
+      // на тяжёлых abi.encodePacked цепочках в tokenURI. Компиляция дольше
+      // (~30 секунд против 5), bytecode чуть эффективнее. Стандартная практика
+      // для NFT-контрактов с on-chain метаданными.
+      viaIR: true,
     },
   },
   networks: {
@@ -39,8 +45,30 @@ const config: HardhatUserConfig = {
     },
   },
   // Для верификации контракта на Basescan (опционально).
+  // Один ключ Basescan покрывает и testnet, и mainnet.
   etherscan: {
-    apiKey: { baseSepolia: process.env.BASESCAN_API_KEY ?? '' },
+    apiKey: {
+      baseSepolia: process.env.BASESCAN_API_KEY ?? '',
+      base: process.env.BASESCAN_API_KEY ?? '',
+    },
+    customChains: [
+      {
+        network: 'base',
+        chainId: 8453,
+        urls: {
+          apiURL: 'https://api.basescan.org/api',
+          browserURL: 'https://basescan.org',
+        },
+      },
+      {
+        network: 'baseSepolia',
+        chainId: 84532,
+        urls: {
+          apiURL: 'https://api-sepolia.basescan.org/api',
+          browserURL: 'https://sepolia.basescan.org',
+        },
+      },
+    ],
   },
 };
 

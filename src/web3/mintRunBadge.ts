@@ -1,10 +1,12 @@
 // ────────────────────────────────────────────────────────────────
-// mintRunBadge.ts — хук для минта NFT-бейджа за run (ТЗ §31–32).
-// Оборачивает wagmi useWriteContract + авто-переключение сети.
+// mintRunBadge.ts — хук для минта SBT-бейджа за пройденную локацию.
 //
-// Если кошелёк игрока на другой сети (например Ethereum mainnet),
-// хук сам попросит его переключиться на нужную цепь Base —
-// игроку остаётся одно нажатие «Switch» в окне кошелька.
+// Новый контракт SBT: принимает только locationId (uint8).
+// Score/kills/level на блокчейне НЕ хранятся — они показываются
+// только в GameOverModal (локально). Это сделано специально:
+//   мы не легитимизируем фейковые цифры от обманного фронта.
+//
+// Если кошелёк на другой сети — хук попросит переключиться.
 // ────────────────────────────────────────────────────────────────
 
 'use client';
@@ -13,35 +15,33 @@ import { useCallback, useEffect, useRef } from 'react';
 import {
   useAccount,
   useChainId,
+  useReadContract,
   useSwitchChain,
   useWriteContract,
   useWaitForTransactionReceipt,
 } from 'wagmi';
 import { ASHBOUND_ABI } from './contract';
 import { CONTRACT_ADDRESS, activeChain } from './chains';
-import type { RunResult } from '../game/types';
 
-// Что возвращает хук в компонент GameOverModal.
 export interface MintState {
-  mint: (run: RunResult) => void; // запустить минт
-  reset: () => void; // сбросить состояние минта (для нового забега)
-  isSwitching: boolean; // идёт переключение сети
-  isPending: boolean; // ждём подпись минта в кошельке
-  isConfirming: boolean; // транзакция в блоке, ждём подтверждения
-  isSuccess: boolean; // бейдж заминчен
-  error: string | null; // текст ошибки, если что-то пошло не так
-  txHash: `0x${string}` | undefined; // хэш транзакции (для ссылки на эксплорер)
-  wrongNetwork: boolean; // кошелёк не на той сети
+  mint: (locationId: number) => void;
+  reset: () => void;
+  isSwitching: boolean;
+  isPending: boolean;
+  isConfirming: boolean;
+  isSuccess: boolean;
+  error: string | null;
+  txHash: `0x${string}` | undefined;
+  wrongNetwork: boolean;
+  /** Уже минтил этот бейдж — кнопка минта должна быть disabled. */
+  alreadyMinted: boolean;
 }
 
-export function useMintRunBadge(): MintState {
+export function useMintRunBadge(locationId: number | null): MintState {
   const { address } = useAccount();
-
-  // На какой сети кошелёк сейчас.
   const chainId = useChainId();
   const { switchChain, isPending: isSwitching, error: switchError } = useSwitchChain();
 
-  // Низкоуровневая запись в контракт.
   const {
     writeContract,
     data: txHash,
@@ -50,74 +50,89 @@ export function useMintRunBadge(): MintState {
     reset: resetWrite,
   } = useWriteContract();
 
-  // Отслеживаем майнинг транзакции по её хэшу.
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
     hash: txHash,
   });
 
-  // На нужной ли мы сети (та, где задеплоен контракт).
   const wrongNetwork = chainId !== activeChain.id;
 
-  // Запоминаем данные run между «переключили сеть» и «теперь минтим».
-  const pendingRun = useRef<RunResult | null>(null);
+  // Проверяем onchain: уже минтил ли этот игрок за эту локацию.
+  // Запрос идёт только если есть address и валидный locationId.
+  const { data: alreadyMintedData } = useReadContract({
+    address: CONTRACT_ADDRESS,
+    abi: ASHBOUND_ABI,
+    functionName: 'hasMinted',
+    args:
+      address && locationId !== null
+        ? [address, locationId]
+        : undefined,
+    query: { enabled: !!address && locationId !== null && !wrongNetwork },
+  });
+  const alreadyMinted = Boolean(alreadyMintedData);
 
-  // Отправить транзакцию минта (вызывается, когда сеть уже правильная).
+  // Запоминаем locationId между switchChain и реальным минтом.
+  const pendingLocation = useRef<number | null>(null);
+
   const sendMint = useCallback(
-    (run: RunResult) => {
+    (loc: number) => {
       if (!address) return;
       writeContract({
         address: CONTRACT_ADDRESS,
         abi: ASHBOUND_ABI,
         functionName: 'mintRunBadge',
-        args: [
-          address,
-          BigInt(run.score),
-          BigInt(run.survivalTime),
-          BigInt(run.level),
-          BigInt(run.kills),
-        ],
+        args: [loc],
       });
     },
     [address, writeContract],
   );
 
-  // Главная функция для UI: минт с авто-переключением сети.
   const mint = useCallback(
-    (run: RunResult) => {
-      if (!address) return; // кошелёк не подключён — UI этого не допустит
+    (loc: number) => {
+      if (!address) return;
 
       if (wrongNetwork) {
-        // Сеть не та — сначала просим кошелёк переключиться.
-        // Сам минт уйдёт в useEffect ниже, когда сеть станет правильной.
-        pendingRun.current = run;
+        pendingLocation.current = loc;
         switchChain({ chainId: activeChain.id });
       } else {
-        // Уже на нужной сети — минтим сразу.
-        sendMint(run);
+        sendMint(loc);
       }
     },
     [address, wrongNetwork, switchChain, sendMint],
   );
 
-  // Как только сеть переключилась на правильную и есть отложенный run —
-  // автоматически отправляем минт.
+  // Когда сеть переключилась и есть отложенный минт — отправляем.
   useEffect(() => {
-    if (!wrongNetwork && pendingRun.current) {
-      const run = pendingRun.current;
-      pendingRun.current = null;
-      sendMint(run);
+    if (!wrongNetwork && pendingLocation.current !== null) {
+      const loc = pendingLocation.current;
+      pendingLocation.current = null;
+      sendMint(loc);
     }
   }, [wrongNetwork, sendMint]);
 
-  // Сбросить состояние минта — нужно перед новым забегом,
-  // иначе кнопка осталась бы «✓ заминчено» с прошлого раза.
   const reset = useCallback(() => {
-    pendingRun.current = null;
+    pendingLocation.current = null;
     resetWrite();
   }, [resetWrite]);
 
-  // Собираем текст ошибки из любого источника (переключение или сам минт).
   const anyError = switchError || writeError;
+  // Нормализуем ошибки контракта в человекочитаемый текст.
+  let errorMessage: string | null = null;
+  if (anyError) {
+    const raw = anyError.message;
+    if (raw.includes('AlreadyMintedForLocation')) {
+      errorMessage = 'You already minted this badge for this location.';
+    } else if (raw.includes('InvalidLocation')) {
+      errorMessage = 'Invalid location id.';
+    } else if (raw.includes('SoulboundNonTransferable')) {
+      errorMessage = 'This badge is soulbound — non-transferable.';
+    } else if (raw.includes('EnforcedPause')) {
+      errorMessage = 'Minting is paused. Try again later.';
+    } else if (raw.includes('User rejected') || raw.includes('User denied')) {
+      errorMessage = 'Transaction rejected in wallet.';
+    } else {
+      errorMessage = raw.split('\n')[0];
+    }
+  }
 
   return {
     mint,
@@ -126,8 +141,9 @@ export function useMintRunBadge(): MintState {
     isPending,
     isConfirming,
     isSuccess,
-    error: anyError ? anyError.message.split('\n')[0] : null,
+    error: errorMessage,
     txHash,
     wrongNetwork,
+    alreadyMinted,
   };
 }
