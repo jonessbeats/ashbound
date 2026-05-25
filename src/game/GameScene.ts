@@ -84,8 +84,8 @@ export default class GameScene extends Phaser.Scene {
     this.setupEventBus();
 
     // НЕ запускаем локацию здесь — ждём START_LOCATION от React (GameContainer).
-    // Запуск до получения события вызывал баг: выбранная не-первая локация
-    // перезаписывалась первой которая стартовала в create().
+    // Сигналим React что сцена готова принять событие.
+    EventBus.emit(GameEvents.SCENE_READY);
   }
 
   // ── Настройка ввода с клавиатуры (desktop, ТЗ §11) ──

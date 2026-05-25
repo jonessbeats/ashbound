@@ -12,14 +12,15 @@ export const EventBus = new Phaser.Events.EventEmitter();
 // Имена событий. Чтобы не путать строки, держим их в одном месте.
 export const GameEvents = {
   // Phaser -> React
-  HUD_UPDATE: 'hud-update', // payload: HudState (каждый кадр)
-  LEVEL_UP: 'level-up', // payload: Upgrade[] (3 варианта на выбор)
-  GAME_OVER: 'game-over', // payload: RunResult (победа ИЛИ смерть, см. victory)
-  WAVE_CHANGED: 'wave-changed', // payload: WaveState (волна сменилась)
+  HUD_UPDATE: 'hud-update',
+  LEVEL_UP: 'level-up',
+  GAME_OVER: 'game-over',
+  WAVE_CHANGED: 'wave-changed',
+  SCENE_READY: 'scene-ready', // сцена создана и готова принять START_LOCATION
 
   // React -> Phaser
-  MOVE_INPUT: 'move-input', // payload: { x: number; y: number } (джойстик)
-  UPGRADE_PICKED: 'upgrade-picked', // payload: UpgradeId
-  START_LOCATION: 'start-location', // payload: locationId (запуск выбранной локации)
-  RESTART: 'restart', // без payload — перезапуск текущей локации
+  MOVE_INPUT: 'move-input',
+  UPGRADE_PICKED: 'upgrade-picked',
+  START_LOCATION: 'start-location',
+  RESTART: 'restart',
 } as const;

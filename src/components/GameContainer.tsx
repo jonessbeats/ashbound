@@ -28,14 +28,15 @@ export default function GameContainer({ locationId, onExit }: Props) {
     if (!hostRef.current || gameRef.current) return;
     gameRef.current = createGame(hostRef.current);
 
-    // Сцена грузится асинхронно — ждём её готовности, потом шлём локацию.
-    // 300мс достаточно даже на слабых мобильных устройствах.
-    const t = setTimeout(() => {
+    // Ждём SCENE_READY от Phaser — только тогда шлём локацию.
+    // Это надёжнее таймаута: работает на любой скорости устройства.
+    const onReady = () => {
       EventBus.emit(GameEvents.START_LOCATION, locationId);
-    }, 300);
+    };
+    EventBus.once(GameEvents.SCENE_READY, onReady);
 
     return () => {
-      clearTimeout(t);
+      EventBus.off(GameEvents.SCENE_READY, onReady);
       gameRef.current?.destroy(true);
       gameRef.current = null;
     };
