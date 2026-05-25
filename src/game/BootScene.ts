@@ -74,6 +74,9 @@ export default class BootScene extends Phaser.Scene {
     this.load.image('floor-ruins', '/assets/tiles/floor_ruins.png');
     this.load.image('floor-forest', '/assets/tiles/floor_forest.png');
     this.load.image('floor-crypt', '/assets/tiles/floor_crypt.png');
+    // Новые локации — Tiny RPG Forest & Mountain by Ansimuz (CC0).
+    this.load.image('floor-enchanted', '/assets/tiles/floor_enchanted.png');
+    this.load.image('floor-mountain', '/assets/tiles/floor_mountain.png');
 
     // Декор локаций (объекты-спрайтшиты). Из Debts in the Depths by Reaktori (CC0).
     // После расширения у всех тем единая ячейка 18×19.
@@ -89,6 +92,33 @@ export default class BootScene extends Phaser.Scene {
       frameWidth: 18,
       frameHeight: 19,
     });
+    // Декор леса — Tiny RPG Forest by Ansimuz (CC0). 8 объектов, кадр 64×64.
+    this.load.spritesheet('decor-forest', '/assets/tiles/decor_forest.png', {
+      frameWidth: 64,
+      frameHeight: 64,
+    });
+
+    // Новые враги — Tiny RPG Forest by Ansimuz (CC0).
+    // Treant: 4 кадра 31×35. Mole: 4 кадра 24×24.
+    this.load.spritesheet('enemy-treant', '/assets/sprites/enemy_treant.png', {
+      frameWidth: 31,
+      frameHeight: 35,
+    });
+    this.load.spritesheet('enemy-mole', '/assets/sprites/enemy_mole.png', {
+      frameWidth: 24,
+      frameHeight: 24,
+    });
+
+    // XP-монеты и гемы — Tiny RPG Forest by Ansimuz (CC0).
+    // coin: 4 кадра 5×7. gem: 4 кадра 7×7.
+    this.load.spritesheet('xp-coin', '/assets/sprites/xp_coin.png', {
+      frameWidth: 5,
+      frameHeight: 7,
+    });
+    this.load.spritesheet('xp-gem', '/assets/sprites/xp_gem.png', {
+      frameWidth: 7,
+      frameHeight: 7,
+    });
   }
 
   create(): void {
@@ -102,8 +132,22 @@ export default class BootScene extends Phaser.Scene {
     // Фаербол — анимированный снаряд (полёт + взрыв).
     this.createFireboltAnims();
 
-    // XP-орб — голубой кристалл.
+    // XP-орб — голубой кристалл (fallback, больше не используется как основной).
     this.makeDiamond('tex-xp', 10, 0x57c7e8, 0x123a44);
+
+    // XP монеты и гемы — анимированные спрайты из Tiny RPG Forest (CC0).
+    this.anims.create({
+      key: 'xp-coin-spin',
+      frames: this.anims.generateFrameNumbers('xp-coin', { start: 0, end: 3 }),
+      frameRate: 8,
+      repeat: -1,
+    });
+    this.anims.create({
+      key: 'xp-gem-spin',
+      frames: this.anims.generateFrameNumbers('xp-gem', { start: 0, end: 3 }),
+      frameRate: 8,
+      repeat: -1,
+    });
 
     // Тайлы пола — загружены из файлов (floor-ruins/forest/crypt).
 
@@ -155,6 +199,8 @@ export default class BootScene extends Phaser.Scene {
       bat: 4,
       skeleton: 4,
       elite: 4,
+      treant: 4,
+      mole: 4,
     };
     for (const [k, frames] of Object.entries(kinds)) {
       this.anims.create({

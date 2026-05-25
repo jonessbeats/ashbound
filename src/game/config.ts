@@ -25,6 +25,11 @@ export const ENEMY_CONFIG = {
   bat: { hp: 10, speed: 130, contactDamage: 4, xp: 3, size: 18, weight: 4 },
   skeleton: { hp: 40, speed: 70, contactDamage: 10, xp: 7, size: 26, weight: 3 },
   elite: { hp: 220, speed: 60, contactDamage: 20, xp: 40, size: 38, weight: 0 },
+  // Tiny RPG Forest by Ansimuz (CC0)
+  // Treant — медленный живой лес, много HP, тяжёлый удар
+  treant: { hp: 160, speed: 38, contactDamage: 18, xp: 22, size: 42, weight: 0 },
+  // Mole — юркий крот, мало HP, быстрый, ныряет близко
+  mole: { hp: 18, speed: 150, contactDamage: 8, xp: 6, size: 22, weight: 0 },
 } as const;
 
 // Параметры босса (ТЗ §21). HP/урон масштабируются множителем волны.

@@ -15,6 +15,9 @@ const FRAME_SIZE: Record<EnemyKind, { w: number; h: number }> = {
   bat: { w: 19, h: 28 },
   skeleton: { w: 19, h: 20 },
   elite: { w: 31, h: 24 },
+  // Tiny RPG Forest by Ansimuz (CC0)
+  treant: { w: 31, h: 35 },
+  mole: { w: 24, h: 24 },
 };
 
 export default class Enemy extends Phaser.Physics.Arcade.Sprite {
