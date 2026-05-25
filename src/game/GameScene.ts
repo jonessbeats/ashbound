@@ -405,6 +405,9 @@ export default class GameScene extends Phaser.Scene {
 
   // Логика волн — зовётся каждый кадр.
   private handleWaves(): void {
+    // Если локация уже завершена (vacuum или endRun) — ничего не делаем.
+    if (this.finished) return;
+
     // Идёт пауза между волнами — ждём её конца.
     if (!this.waveActive) {
       if (this.elapsedMs >= this.intermissionUntil) this.startWave();
@@ -506,9 +509,12 @@ export default class GameScene extends Phaser.Scene {
 
   // Отправить состояние волн в React (для HUD и баннера волны).
   private emitWaveState(): void {
+    const total = this.location.waves.length;
+    // Клампируем current чтобы никогда не показывало «6/5» на экране победы.
+    const current = Math.min(this.waveIndex + 1, total);
     EventBus.emit(GameEvents.WAVE_CHANGED, {
-      current: this.waveIndex + 1,
-      total: this.location.waves.length,
+      current,
+      total,
       enemiesLeft: this.enemiesToSpawn + this.countAliveEnemies(),
       intermission: !this.waveActive,
       boss: !!this.currentWave().boss,
