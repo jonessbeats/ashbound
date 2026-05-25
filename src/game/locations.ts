@@ -37,7 +37,7 @@ export const LOCATIONS: LocationConfig[] = [
     name: 'Ashen Ruins',
     description: 'Where the first ash fell. Five waves to survive.',
     floorTexture: 'floor-ruins',
-    decorTheme: 'decor-catacombs',
+    decorTheme: 'decor-dungeon',
     decorCount: 14,
     waves: [
       { count: 6, weights: { slime: 5 }, hpMultiplier: 1.0 },
@@ -69,7 +69,7 @@ export const LOCATIONS: LocationConfig[] = [
     name: 'Frozen Crypt',
     description: 'The deepest cold. Nine waves. Only the strong return.',
     floorTexture: 'floor-crypt',
-    decorTheme: 'decor-inferno',
+    decorTheme: 'decor-dungeon',
     decorCount: 12,
     waves: [
       { count: 14, weights: { bat: 3, skeleton: 3, vampire: 3 }, hpMultiplier: 2.0 },
@@ -108,7 +108,7 @@ export const LOCATIONS: LocationConfig[] = [
     name: 'Mountain Pass',
     description: 'The final ascent. Eleven waves. Legends are forged here.',
     floorTexture: 'floor-mountain',
-    decorTheme: 'decor-catacombs',
+    decorTheme: 'decor-dungeon',
     decorCount: 16,
     waves: [
       { count: 18, weights: { mole: 4, treant: 3 }, hpMultiplier: 5.0 },
