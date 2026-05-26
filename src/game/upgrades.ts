@@ -35,8 +35,7 @@ export function applyUpgrade(player: Player, id: UpgradeId): void {
     case 'damage':
       s.attackDamage = Math.round(s.attackDamage * 1.2);
       // Бустим все оружия
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const wmd = (player.scene as any).weaponManager;
+      const wmd = (player.scene as unknown as { weaponManager?: { slots: { damage: number; cooldown: number; range: number }[] } }).weaponManager;
       if (wmd && wmd.slots) {
         wmd.slots.forEach((ws: { damage: number }) => {
           ws.damage = Math.round(ws.damage * 1.2);
@@ -48,8 +47,7 @@ export function applyUpgrade(player: Player, id: UpgradeId): void {
       break;
     case 'attackCooldown':
       s.attackCooldown = Math.max(80, Math.round(s.attackCooldown * 0.85));
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const wmc = (player.scene as any).weaponManager;
+      const wmc = (player.scene as unknown as { weaponManager?: { slots: { damage: number; cooldown: number; range: number }[] } }).weaponManager;
       if (wmc && wmc.slots) {
         wmc.slots.forEach((ws: { cooldown: number }) => {
           ws.cooldown = Math.max(60, Math.round(ws.cooldown * 0.85));
@@ -69,8 +67,7 @@ export function applyUpgrade(player: Player, id: UpgradeId): void {
     case 'projectileSpeed':
       s.projectileSpeed = Math.round(s.projectileSpeed * 1.15);
       // Реально применяем — ускоряем cooldown всех оружий (melee и ranged)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const wmsp = (player.scene as any).weaponManager;
+      const wmsp = (player.scene as unknown as { weaponManager?: { slots: { damage: number; cooldown: number; range: number }[] } }).weaponManager;
       if (wmsp && wmsp.slots) {
         wmsp.slots.forEach((ws: { cooldown: number }) => {
           ws.cooldown = Math.max(60, Math.round(ws.cooldown * 0.85));
@@ -81,8 +78,7 @@ export function applyUpgrade(player: Player, id: UpgradeId): void {
       // Теперь это global weapon range boost — увеличивает дальность всех оружий
       s.projectileCount += 1;
       // Применяем к WeaponManager через player.scene (костыль, но работает)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const wm = (player.scene as any).weaponManager;
+      const wm = (player.scene as unknown as { weaponManager?: { slots: { damage: number; cooldown: number; range: number }[] } }).weaponManager;
       if (wm && wm.slots) {
         wm.slots.forEach((ws: { range: number }) => {
           ws.range = Math.round(ws.range * 1.15);
