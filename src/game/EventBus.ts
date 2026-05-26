@@ -14,13 +14,15 @@ export const GameEvents = {
   // Phaser -> React
   HUD_UPDATE: 'hud-update',
   LEVEL_UP: 'level-up',
+  CHEST_OPEN: 'chest-open',   // сундук открыт: варианты оружий/апгрейдов
   GAME_OVER: 'game-over',
   WAVE_CHANGED: 'wave-changed',
-  SCENE_READY: 'scene-ready', // сцена создана и готова принять START_LOCATION
+  SCENE_READY: 'scene-ready',
 
   // React -> Phaser
   MOVE_INPUT: 'move-input',
   UPGRADE_PICKED: 'upgrade-picked',
+  CHEST_PICKED: 'chest-picked', // игрок выбрал оружие из сундука
   START_LOCATION: 'start-location',
   RESTART: 'restart',
 } as const;

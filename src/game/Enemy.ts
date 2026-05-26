@@ -30,6 +30,8 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
   public speed: number;
   public contactDamage: number;
   public xpValue: number;
+  public readonly id: number = ++Enemy.nextId;
+  private static nextId = 0;
 
   constructor(scene: Phaser.Scene, x: number, y: number, kind: EnemyKind, difficulty: number) {
     super(scene, x, y, 'enemy-' + kind, 0);
@@ -78,10 +80,37 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
   // Получить урон. Вернёт true, если враг умер.
   public takeDamage(amount: number): boolean {
     this.hp -= amount;
-    this.setTint(0xffffff); // белая вспышка при попадании
-    this.scene.time.delayedCall(70, () => {
+
+    // Красная вспышка
+    this.setTint(0xff3333);
+    this.scene.time.delayedCall(90, () => {
       if (this.active) this.clearTint();
     });
+
+    // Damage number — всплывающая цифра урона
+    const isCrit = amount > 20;
+    const dmgText = this.scene.add.text(
+      this.x + Phaser.Math.Between(-8, 8),
+      this.y - 12,
+      Math.round(amount).toString(),
+      {
+        fontSize: isCrit ? '14px' : '11px',
+        color: isCrit ? '#ffee44' : '#ffffff',
+        stroke: '#000',
+        strokeThickness: 3,
+        fontStyle: 'bold',
+      },
+    ).setOrigin(0.5).setDepth(20);
+
+    this.scene.tweens.add({
+      targets: dmgText,
+      y: dmgText.y - 24,
+      alpha: 0,
+      duration: 600,
+      ease: 'Sine.Out',
+      onComplete: () => dmgText.destroy(),
+    });
+
     return this.hp <= 0;
   }
 }

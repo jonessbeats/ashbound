@@ -12,6 +12,7 @@ import { EventBus, GameEvents } from '@/game/EventBus';
 import HUD from './HUD';
 import Joystick from './Joystick';
 import UpgradeModal from './UpgradeModal';
+import ChestModal from './ChestModal';
 import GameOverModal from './GameOverModal';
 import WaveBanner from './WaveBanner';
 
@@ -53,6 +54,7 @@ export default function GameContainer({ locationId, onExit }: Props) {
       <WaveBanner />
       <Joystick />
       <UpgradeModal />
+      <ChestModal />
       <GameOverModal />
     </div>
   );

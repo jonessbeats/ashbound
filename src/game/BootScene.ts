@@ -147,6 +147,17 @@ export default class BootScene extends Phaser.Scene {
       frameWidth: 7,
       frameHeight: 7,
     });
+
+    // Оружия — Weapons Pack (free, commercial OK). 16×16.
+    this.load.image('weapon-sword',  '/assets/sprites/weapon_1.png');
+    this.load.image('weapon-axe',    '/assets/sprites/weapon_6.png');
+    this.load.image('weapon-bow',    '/assets/sprites/weapon_11.png');
+    this.load.image('weapon-dagger', '/assets/sprites/weapon_22.png');
+    this.load.image('weapon-spear',  '/assets/sprites/weapon_53.png');
+    this.load.image('weapon-staff',  '/assets/sprites/weapon_57.png');
+
+    // Стрела для лука (отдельный спрайт-снаряд).
+    this.load.image('arrow', '/assets/sprites/arrow.png');
   }
 
   create(): void {

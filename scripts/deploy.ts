@@ -1,7 +1,13 @@
 const hre = require('hardhat');
 
 const IMAGE_BASE_URI = 'https://ashbound.xyz/badges/';
-const LOCATION_NAMES = ['Ashen Ruins', 'Dead Forest', 'Frozen Crypt'];
+const LOCATION_NAMES = [
+  'Ashen Ruins',
+  'Dead Forest',
+  'Frozen Crypt',
+  'Enchanted Forest',
+  'Mountain Pass',
+];
 
 async function main() {
   const { ethers, network } = hre;
@@ -54,7 +60,7 @@ async function main() {
   console.log('');
   const netFlag = isMainnet ? '--network base' : '--network baseSepolia';
   console.log('Верификация:');
-  console.log('  npx hardhat verify ' + netFlag + ' ' + address + ' "' + IMAGE_BASE_URI + '" \'["Ashen Ruins","Dead Forest","Frozen Crypt"]\'');
+  console.log('  npx hardhat verify ' + netFlag + ' ' + address + ' "' + IMAGE_BASE_URI + '" \'[' + LOCATION_NAMES.map(n => '"' + n + '"').join(',') + ']\'');
 }
 
 main().catch((e) => { console.error(e); process.exitCode = 1; });

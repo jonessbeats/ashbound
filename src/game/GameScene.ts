@@ -13,6 +13,9 @@ import Enemy from './Enemy';
 import Boss from './Boss';
 import Projectile from './Projectile';
 import EnemyProjectile from './EnemyProjectile';
+import WeaponManager from './weapons/WeaponManager';
+import Arrow from './weapons/Arrow';
+import { type WeaponId, WEAPON_ORDER } from './weapons/weaponTypes';
 import XPOrb from './XPOrb';
 import { ARENA, BOSS_CONFIG, scoreFromRun, xpForLevel } from './config';
 import { rollUpgrades, applyUpgrade } from './upgrades';
@@ -34,9 +37,11 @@ export default class GameScene extends Phaser.Scene {
   private decorSprites: Phaser.GameObjects.Sprite[] = []; // статичный декор арены
   private boss: Boss | null = null; // активный босс (только в боссовой волне)
   private colliders: Phaser.Physics.Arcade.Collider[] = [];
-  private chest: Phaser.GameObjects.Sprite | null = null; // сундук после волны
-  private chestOpen = false; // уже открыт
-  private flasks!: Phaser.Physics.Arcade.Group; // колбы дропа HP
+  private weaponManager!: WeaponManager;
+  private arrows!: Phaser.Physics.Arcade.Group;
+  private chest: Phaser.GameObjects.Sprite | null = null;
+  private chestOpen = false;
+  private flasks!: Phaser.Physics.Arcade.Group;
 
   // ── Текущая локация и волны ──
   private location!: LocationConfig; // какую локацию играем
@@ -77,7 +82,15 @@ export default class GameScene extends Phaser.Scene {
     this.projectiles = this.physics.add.group();
     this.enemyProjectiles = this.physics.add.group();
     this.orbs = this.physics.add.group();
+    this.arrows = this.physics.add.group();
     this.flasks = this.physics.add.group();
+
+    // WeaponManager — стартуем с мечом. Player установим в beginLocation.
+    this.weaponManager = new WeaponManager(this, null, 'sword');
+    this.weaponManager.projectiles = this.projectiles;
+    this.weaponManager.arrows = this.arrows;
+    this.weaponManager.onKill = (e) => this.killEnemy(e);
+    this.weaponManager.onKillBoss = () => this.killBoss();
 
     // Враги расталкиваются друг от друга — чтобы не слипались в один комок
     // при беге к игроку. Коллайдер живёт всю сцену, не в setupCollisions
@@ -110,6 +123,16 @@ export default class GameScene extends Phaser.Scene {
       this.moveVec.set(v.x, v.y);
     };
 
+    const onChestPicked = (data: { weaponId: WeaponId; isUpgrade: boolean }) => {
+      if (data.isUpgrade) {
+        this.weaponManager.upgradeWeapon(data.weaponId);
+      } else {
+        this.weaponManager.addWeapon(data.weaponId);
+      }
+      this.running = true;
+      this.physics.resume();
+    };
+
     const onUpgrade = (id: Parameters<typeof applyUpgrade>[1]) => {
       applyUpgrade(this.player, id);
       this.running = true;
@@ -131,6 +154,7 @@ export default class GameScene extends Phaser.Scene {
 
     EventBus.on(GameEvents.MOVE_INPUT, onMove);
     EventBus.on(GameEvents.UPGRADE_PICKED, onUpgrade);
+    EventBus.on(GameEvents.CHEST_PICKED, onChestPicked);
     EventBus.on(GameEvents.START_LOCATION, onStartLocation);
     EventBus.on(GameEvents.RESTART, onRestart);
 
@@ -138,6 +162,7 @@ export default class GameScene extends Phaser.Scene {
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       EventBus.off(GameEvents.MOVE_INPUT, onMove);
       EventBus.off(GameEvents.UPGRADE_PICKED, onUpgrade);
+      EventBus.off(GameEvents.CHEST_PICKED, onChestPicked);
       EventBus.off(GameEvents.START_LOCATION, onStartLocation);
       EventBus.off(GameEvents.RESTART, onRestart);
     });
@@ -175,6 +200,7 @@ export default class GameScene extends Phaser.Scene {
     if (this.player) this.player.destroy();
     this.player = new Player(this, ARENA.width / 2, ARENA.height / 2);
     this.cameras.main.startFollow(this.player, true, 0.12, 0.12);
+    this.weaponManager.setPlayer(this.player);
     this.setupCollisions();
 
     // Сброс состояния run.
@@ -231,52 +257,56 @@ export default class GameScene extends Phaser.Scene {
   }
 
 
-  // Заспавнить сундук в центре арены после зачистки волны.
   private spawnChest(): void {
     if (this.chest) return;
     this.chestOpen = false;
     const x = ARENA.width / 2 + Phaser.Math.Between(-80, 80);
     const y = ARENA.height / 2 + Phaser.Math.Between(-80, 80);
-    this.chest = this.add.sprite(x, y, 'chest-closed', 0).setDepth(3).setScale(3);
-    this.chest.play('chest-idle');
-    // Текстовая подсказка над сундуком
-    const label = this.add.text(x, y - 28, '[ CHEST ]', {
-      fontSize: '8px', color: '#ffd700', stroke: '#000', strokeThickness: 2,
-    }).setOrigin(0.5).setDepth(10);
-    this.chest.setData('label', label);
+    const ch = this.add.sprite(x, y, 'chest-closed', 0).setDepth(3).setScale(1.5);
+    ch.play('chest-idle');
+    this.chest = ch;
   }
 
-  // Заспавнить колбу хилки рядом с убитым врагом (с вероятностью).
+  private rollChestOptions(): { weaponId: WeaponId; isUpgrade: boolean }[] {
+    const options: { weaponId: WeaponId; isUpgrade: boolean }[] = [];
+    this.weaponManager.slots.forEach((ws) => {
+      if (ws.level < 5) options.push({ weaponId: ws.def.id, isUpgrade: true });
+    });
+    WEAPON_ORDER.forEach((id) => {
+      if (!this.weaponManager.hasWeapon(id) && this.weaponManager.slots.length < 4) {
+        options.push({ weaponId: id, isUpgrade: false });
+      }
+    });
+    for (let i = options.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [options[i], options[j]] = [options[j], options[i]];
+    }
+    return options.slice(0, 3);
+  }
+
   private maybeSpawnFlask(x: number, y: number): void {
-    if (Math.random() > 0.08) return; // 8% шанс
-    const flask = this.physics.add.sprite(x, y, 'flask', 0).setDepth(3).setScale(3);
+    if (Math.random() > 0.08) return;
+    const flask = this.physics.add.sprite(x, y, 'flask', 0).setDepth(3).setScale(2);
     flask.play('flask-glow');
     (flask.body as Phaser.Physics.Arcade.Body).setImmovable(true);
     this.flasks.add(flask);
   }
 
-  // Проверить подбор сундука и колб игроком (зовётся каждый кадр).
   private handlePickups(): void {
-    // Сундук — подходишь → открывается → апгрейд
     if (this.chest && !this.chestOpen && this.running) {
-      const dist = Phaser.Math.Distance.Between(
-        this.player.x, this.player.y, this.chest.x, this.chest.y,
-      );
+      const ch = this.chest as Phaser.GameObjects.Sprite;
+      const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, ch.x, ch.y);
       if (dist < 40) {
         this.chestOpen = true;
-        this.chest.play('chest-opening');
-        // Убираем подсказку
-        const label = this.chest.getData('label') as Phaser.GameObjects.Text;
-        if (label) label.destroy();
-        // Небольшая задержка — анимация открытия
+        ch.play('chest-opening');
         this.time.delayedCall(400, () => {
-          if (this.chest) { this.chest.destroy(); this.chest = null; }
-          // Выдаём апгрейд как при level up
-          if (this.running) {
-            this.running = false;
-            this.physics.pause();
-            EventBus.emit(GameEvents.LEVEL_UP, rollUpgrades());
-          }
+          if (this.chest) { (this.chest as Phaser.GameObjects.Sprite).destroy(); this.chest = null; }
+          if (!this.running) return;
+          const options = this.rollChestOptions();
+          if (options.length === 0) return;
+          this.running = false;
+          this.physics.pause();
+          EventBus.emit(GameEvents.CHEST_OPEN, options);
         });
       }
     }
@@ -316,6 +346,18 @@ export default class GameScene extends Phaser.Scene {
       }),
     );
 
+
+    // Стрела (лук) — наносит урон и исчезает при попадании.
+    this.colliders.push(
+      this.physics.add.overlap(this.arrows, this.enemies, (a, b) => {
+        const arrow = (a instanceof Arrow ? a : b) as Arrow;
+        const enemy = (a instanceof Enemy ? a : b) as Enemy;
+        if (!arrow.active || !enemy.active) return;
+        this.spawnHitSpark(arrow.x, arrow.y);
+        arrow.destroy();
+        if (enemy.takeDamage(arrow.damage)) this.killEnemy(enemy);
+      }),
+    );
     // Враг коснулся игрока — контактный урон.
     this.colliders.push(
       this.physics.add.overlap(this.player, this.enemies, (_p, enemyObj) => {
@@ -359,7 +401,7 @@ export default class GameScene extends Phaser.Scene {
     this.handleWaves();
     this.handleEnemyChase();
     this.handleBoss();
-    this.handleAutoAttack();
+    this.weaponManager.tick(this.elapsedMs, this.enemies.getChildren(), this.boss);
     this.handleProjectiles(delta);
     this.handleOrbMagnet();
     this.handlePickups();
@@ -406,6 +448,9 @@ export default class GameScene extends Phaser.Scene {
     this.projectiles.getChildren().forEach((obj) => {
       (obj as import('./Projectile').default).homeUpdate();
     });
+    this.arrows.getChildren().forEach((obj) => {
+      (obj as Arrow).manualUpdate(delta);
+    });
     // Огонь дракона двигаем вручную (Arcade velocity глючил на нём).
     this.enemyProjectiles.getChildren().forEach((obj) => {
       (obj as EnemyProjectile).manualUpdate(delta);
@@ -428,14 +473,6 @@ export default class GameScene extends Phaser.Scene {
     this.enemiesToSpawn = wave.count;
     this.nextWaveSpawnAt = this.elapsedMs;
 
-    // Убираем сундук если игрок не успел подобрать до начала волны
-    if (this.chest) {
-      const label = this.chest.getData('label') as Phaser.GameObjects.Text;
-      if (label) label.destroy();
-      this.chest.destroy();
-      this.chest = null;
-    }
-
     // Боссовая волна — сразу спавним дракона в центре верхнего края арены.
     if (wave.boss) {
       this.spawnBoss(wave.hpMultiplier);
@@ -457,14 +494,24 @@ export default class GameScene extends Phaser.Scene {
     // Болт игрока попал в босса.
     this.colliders.push(
       this.physics.add.overlap(this.projectiles, this.boss, (a, b) => {
-        // Phaser отдаёт объекты в произвольном порядке — определяем по типу,
-        // а не по позиции аргумента (иначе boss.takeDamage падает).
         const proj = (a instanceof Projectile ? a : b) as Projectile;
         const boss = (a instanceof Boss ? a : b) as Boss;
         if (!proj.active || !boss.active) return;
         this.spawnHitSpark(proj.x, proj.y);
         proj.destroy();
         if (boss.takeDamage(proj.damage)) this.killBoss();
+      }),
+    );
+
+    // Стрела игрока попала в босса.
+    this.colliders.push(
+      this.physics.add.overlap(this.arrows, this.boss, (a, b) => {
+        const arrow = (a instanceof Arrow ? a : b) as Arrow;
+        const boss = (a instanceof Boss ? a : b) as Boss;
+        if (!arrow.active || !boss.active) return;
+        this.spawnHitSpark(arrow.x, arrow.y);
+        arrow.destroy();
+        if (boss.takeDamage(arrow.damage)) this.killBoss();
       }),
     );
 
