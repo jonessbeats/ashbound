@@ -3,7 +3,7 @@
 // ────────────────────────────────────────────────────────────────
 
 // Виды врагов.
-export type EnemyKind = 'slime' | 'bat' | 'skeleton' | 'skeleton2' | 'elite' | 'treant' | 'mole' | 'vampire';
+export type EnemyKind = 'slime' | 'bat' | 'skeleton' | 'skeleton2' | 'elite' | 'treant' | 'mole' | 'vampire' | 'goblin' | 'orc' | 'mummy' | 'zombie' | 'fire_skull';
 
 // Текущие статы игрока (меняются апгрейдами по ходу run).
 export interface PlayerStats {

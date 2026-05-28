@@ -18,7 +18,7 @@ import Arrow from './weapons/Arrow';
 import { type WeaponId, WEAPON_ORDER } from './weapons/weaponTypes';
 import XPOrb from './XPOrb';
 import { ARENA, BOSS_CONFIG, scoreFromRun, xpForLevel } from './config';
-import { rollUpgrades, applyUpgrade } from './upgrades';
+import { rollUpgrades, applyUpgrade, resetUpgradeCounts } from './upgrades';
 import { EventBus, GameEvents } from './EventBus';
 import { getLocation } from './locations';
 import type { LocationConfig, WaveConfig } from './locations';
@@ -200,6 +200,8 @@ export default class GameScene extends Phaser.Scene {
     if (this.player) this.player.destroy();
     this.player = new Player(this, ARENA.width / 2, ARENA.height / 2);
     this.cameras.main.startFollow(this.player, true, 0.12, 0.12);
+    // Сброс оружия к стартовому — каждый забег начинается с нуля (только меч).
+    this.weaponManager.reset('sword');
     this.weaponManager.setPlayer(this.player);
     this.setupCollisions();
 
@@ -215,6 +217,7 @@ export default class GameScene extends Phaser.Scene {
     this.chest = null;
     this.chestOpen = false;
     this.flasks.clear(true, true);
+    resetUpgradeCounts();
     this.physics.resume();
 
     // Запустить первую волну (с короткой паузой-объявлением).
@@ -236,15 +239,44 @@ export default class GameScene extends Phaser.Scene {
 
     const margin = 80; // не ставить вплотную к краям арены
     const centerSafe = 220; // радиус «чистой зоны» вокруг старта игрока
+    // Forest-декор крупный (деревья до 128px после scale) — нужен больший зазор.
+    const isBigDecor = loc.decorTheme === 'decor-forest';
+    const minGap = isBigDecor ? 170 : 110;
+
+    const placed: { x: number; y: number }[] = [];
 
     for (let i = 0; i < loc.decorCount; i++) {
-      const x = Phaser.Math.Between(margin, ARENA.width - margin);
-      const y = Phaser.Math.Between(margin, ARENA.height - margin);
+      // До 30 попыток найти позицию, которая не пересекается с уже размещённым.
+      let x = 0;
+      let y = 0;
+      let ok = false;
+      for (let attempt = 0; attempt < 30; attempt++) {
+        x = Phaser.Math.Between(margin, ARENA.width - margin);
+        y = Phaser.Math.Between(margin, ARENA.height - margin);
 
-      // Не заваливать декором точку спавна игрока (центр арены).
-      const dx = x - ARENA.width / 2;
-      const dy = y - ARENA.height / 2;
-      if (Math.hypot(dx, dy) < centerSafe) continue;
+        // Не заваливать декором точку спавна игрока (центр арены).
+        const dx = x - ARENA.width / 2;
+        const dy = y - ARENA.height / 2;
+        if (Math.hypot(dx, dy) < centerSafe) continue;
+
+        // Проверяем дистанцию до всех уже размещённых объектов.
+        let tooClose = false;
+        for (const p of placed) {
+          if (Math.hypot(x - p.x, y - p.y) < minGap) {
+            tooClose = true;
+            break;
+          }
+        }
+        if (tooClose) continue;
+
+        ok = true;
+        break;
+      }
+      // Если за 30 попыток места не нашлось — пропускаем этот объект,
+      // чтобы не впихивать его внахлёст.
+      if (!ok) continue;
+
+      placed.push({ x, y });
 
       const frame = Phaser.Math.Between(0, frameCount - 1);
       const decor = this.add.sprite(x, y, loc.decorTheme, frame);
@@ -412,21 +444,34 @@ export default class GameScene extends Phaser.Scene {
   private handleBoss(): void {
     if (!this.boss || !this.boss.active) return;
 
-    // Огонь: пускаем снаряд по прямой в позицию игрока на момент выстрела.
+    // Огонь: залп из 3 снарядов веером — только если игрок в радиусе fireRange.
     if (this.boss.shouldFire(this.elapsedMs)) {
-      const angle = Math.atan2(
-        this.player.y - this.boss.y,
-        this.player.x - this.boss.x,
+      const dist = Phaser.Math.Distance.Between(
+        this.boss.x, this.boss.y, this.player.x, this.player.y,
       );
-      const shot = new EnemyProjectile(
-        this,
-        this.boss.x,
-        this.boss.y,
-        angle,
-        BOSS_CONFIG.fireSpeed,
-        BOSS_CONFIG.fireDamage,
-      );
-      this.enemyProjectiles.add(shot);
+      // Стреляет только когда игрок достаточно близко — иначе экономит "ману".
+      if (dist <= BOSS_CONFIG.fireRange) {
+        const baseAngle = Math.atan2(
+          this.player.y - this.boss.y,
+          this.player.x - this.boss.x,
+        );
+        const burst = BOSS_CONFIG.fireBurst;
+        const spread = BOSS_CONFIG.fireSpread;
+        // Веер: от -spread до +spread равномерно
+        for (let i = 0; i < burst; i++) {
+          const t = burst === 1 ? 0 : (i / (burst - 1)) * 2 - 1; // -1..1
+          const angle = baseAngle + t * spread;
+          const shot = new EnemyProjectile(
+            this,
+            this.boss.x,
+            this.boss.y,
+            angle,
+            BOSS_CONFIG.fireSpeed,
+            BOSS_CONFIG.fireDamage,
+          );
+          this.enemyProjectiles.add(shot);
+        }
+      }
     }
 
     // Призыв: спавним свиту мелких врагов рядом с боссом.

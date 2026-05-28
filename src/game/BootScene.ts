@@ -26,10 +26,10 @@ export default class BootScene extends Phaser.Scene {
     // Спрайтшиты врагов (кадр 16×16, по 4 кадра ходьбы).
     // Спрайтшиты врагов из Debts in the Depths by Reaktori (CC0).
     // У каждого свой размер кадра и число кадров.
-    // ('slime' — код-ключ; текстура — Batilisk: ровная анимация полёта)
+    // (slime теперь из Creature Pack — 16×16)
     this.load.spritesheet('enemy-slime', '/assets/sprites/enemy_slime.png', {
-      frameWidth: 25,
-      frameHeight: 25,
+      frameWidth: 16,
+      frameHeight: 16,
     });
     this.load.spritesheet('enemy-bat', '/assets/sprites/enemy_bat.png', {
       frameWidth: 19,
@@ -117,6 +117,24 @@ export default class BootScene extends Phaser.Scene {
     this.load.spritesheet('enemy-vampire', '/assets/sprites/enemy_vampire.png', {
       frameWidth: 32,
       frameHeight: 32,
+    });
+
+    // Creature Free Pack by Electric Lemon Games (commercial OK).
+    // Все 4 кадра 16×16 (walk-down).
+    this.load.spritesheet('enemy-goblin', '/assets/sprites/enemy_goblin.png', {
+      frameWidth: 16, frameHeight: 16,
+    });
+    this.load.spritesheet('enemy-orc', '/assets/sprites/enemy_orc.png', {
+      frameWidth: 16, frameHeight: 16,
+    });
+    this.load.spritesheet('enemy-mummy', '/assets/sprites/enemy_mummy.png', {
+      frameWidth: 16, frameHeight: 16,
+    });
+    this.load.spritesheet('enemy-zombie', '/assets/sprites/enemy_zombie.png', {
+      frameWidth: 16, frameHeight: 16,
+    });
+    this.load.spritesheet('enemy-fire_skull', '/assets/sprites/enemy_fire_skull.png', {
+      frameWidth: 16, frameHeight: 16,
     });
 
     // Предметы — 2D Pixel Dungeon Asset Pack by Pixel_Poem (commercial OK).
@@ -242,6 +260,11 @@ export default class BootScene extends Phaser.Scene {
       mole: 4,
       skeleton2: 8,
       vampire: 8,
+      goblin: 4,
+      orc: 4,
+      mummy: 4,
+      zombie: 4,
+      fire_skull: 4,
     };
     for (const [k, frames] of Object.entries(kinds)) {
       this.anims.create({

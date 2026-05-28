@@ -69,7 +69,7 @@ export default function ChestModal() {
                   <div className="font-mono text-base text-amber-300">
                     {opt.isUpgrade ? `Upgrade ${def.name}` : `New: ${def.name}`}
                     {opt.isUpgrade && (
-                      <span className="ml-2 text-xs text-green-400">+25% dmg / -12% cd</span>
+                      <span className="ml-2 text-xs text-green-400">+12% dmg / -6% cd</span>
                     )}
                   </div>
                   <div className="text-sm text-slate-400">{def.description}</div>

@@ -42,6 +42,15 @@ export default class WeaponManager {
     this.addWeapon(startWeapon);
   }
 
+  // Полный сброс к стартовому состоянию (1 меч, базовые статы оружия).
+  // Вызывается при входе в локацию — каждый забег начинается с нуля.
+  public reset(startWeapon: WeaponId = 'sword'): void {
+    this.icons.forEach((ic) => { try { ic.destroy(); } catch { /**/ } });
+    this.icons = [];
+    this.slots = [];
+    this.addWeapon(startWeapon);
+  }
+
   public setPlayer(player: Player): void {
     this.player = player;
     // Сбрасываем cooldown'ы всех оружий — иначе на новой локе оружия "ждут"
@@ -67,9 +76,9 @@ export default class WeaponManager {
     const ws = this.slots.find((s) => s.def.id === id);
     if (!ws || ws.level >= 5) return;
     ws.level++;
-    ws.damage = Math.round(ws.damage * 1.25);
-    ws.cooldown = Math.max(60, Math.round(ws.cooldown * 0.88));
-    ws.range = Math.round(ws.range * 1.08);
+    ws.damage = Math.round(ws.damage * 1.12);
+    ws.cooldown = Math.max(150, Math.round(ws.cooldown * 0.94));
+    ws.range = Math.round(ws.range * 1.05);
   }
 
   private rebuildIcons(): void {

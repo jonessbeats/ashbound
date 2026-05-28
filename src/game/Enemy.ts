@@ -11,7 +11,7 @@ import type { EnemyKind } from './types';
 // Размеры кадра спрайтшита каждого врага (ширина × высота).
 // У спрайтов Debts in the Depths кадры разного размера.
 const FRAME_SIZE: Record<EnemyKind, { w: number; h: number }> = {
-  slime: { w: 25, h: 25 },
+  slime: { w: 16, h: 16 },         // обновлён — новый спрайт из Creature Pack
   bat: { w: 19, h: 28 },
   skeleton: { w: 19, h: 20 },
   elite: { w: 31, h: 24 },
@@ -21,6 +21,12 @@ const FRAME_SIZE: Record<EnemyKind, { w: number; h: number }> = {
   // 2D Pixel Dungeon Asset Pack by Pixel_Poem (commercial OK)
   skeleton2: { w: 32, h: 32 },
   vampire: { w: 32, h: 32 },
+  // Creature Free Pack by Electric Lemon Games (commercial OK). Все 16×16.
+  goblin: { w: 16, h: 16 },
+  orc: { w: 16, h: 16 },
+  mummy: { w: 16, h: 16 },
+  zombie: { w: 16, h: 16 },
+  fire_skull: { w: 16, h: 16 },
 };
 
 export default class Enemy extends Phaser.Physics.Arcade.Sprite {
