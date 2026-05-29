@@ -15,5 +15,9 @@ export const activeChain = CHAIN_ID === base.id ? base : baseSepolia;
 export const CONTRACT_ADDRESS = (process.env.NEXT_PUBLIC_CONTRACT_ADDRESS ??
   '0x0000000000000000000000000000000000000000') as `0x${string}`;
 
+// Адрес контракта ежедневного чек-ина (заполнить после деплоя).
+export const CHECKIN_ADDRESS = (process.env.NEXT_PUBLIC_CHECKIN_ADDRESS ??
+  '0x0000000000000000000000000000000000000000') as `0x${string}`;
+
 // Удобный флаг — на тестнете мы или на мейннете.
 export const isTestnet = activeChain.id === baseSepolia.id;

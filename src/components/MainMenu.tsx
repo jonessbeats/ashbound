@@ -10,6 +10,7 @@
 import { useEffect, useState } from 'react';
 import { loadProgress } from '@/web3/localProgress';
 import WalletConnect from './WalletConnect';
+import DailyCheckIn from './DailyCheckIn';
 
 // Пул фонов. Каждая запись содержит portrait и wide версию.
 // "key" — стабильный идентификатор для детерминированного выбора по дате.
@@ -104,6 +105,7 @@ export default function MainMenu({ onStart }: { onStart: () => void }) {
           START RUN
         </button>
         <WalletConnect className="w-full" />
+        <DailyCheckIn className="w-full" />
 
         {/* Локальная статистика — внутри той же плашки, мелким шрифтом */}
         <div className="mt-2 border-t border-slate-700/40 pt-3 text-center font-mono text-xs text-slate-500">
