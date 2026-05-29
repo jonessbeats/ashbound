@@ -55,9 +55,11 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
 
     this.setDepth(5);
 
-    // Масштабируем спрайт так, чтобы его ВЫСОТА равнялась c.size из конфига.
-    // (кадры у врагов разного размера — нормируем по высоте)
-    const scale = c.size / frame.h;
+    // Масштабируем по БОЛЬШЕЙ стороне кадра — так все враги получают
+    // одинаковый визуальный габарит независимо от пропорций спрайта
+    // (скелет высокий-узкий, зомби низкий-широкий → оба ~c.size на экране).
+    const maxSide = Math.max(frame.w, frame.h);
+    const scale = c.size / maxSide;
     this.setScale(scale);
 
     // Хитбокс — круг. Координаты тела задаются ДО масштабирования,

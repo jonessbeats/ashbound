@@ -21,22 +21,22 @@ export const PLAYER_CONFIG = {
 // Базовые статы врагов (ТЗ §22). Меняешь тут — меняется в игре.
 // size — высота спрайта на экране (px). Влияет и на масштаб, и на хитбокс.
 export const ENEMY_CONFIG = {
-  slime: { hp: 20, speed: 55, contactDamage: 8, xp: 4, size: 34, weight: 5 },
-  bat: { hp: 10, speed: 155, contactDamage: 6, xp: 3, size: 18, weight: 4 },
-  skeleton: { hp: 40, speed: 85, contactDamage: 13, xp: 7, size: 26, weight: 3 },
-  elite: { hp: 220, speed: 72, contactDamage: 26, xp: 40, size: 38, weight: 0 },
+  slime: { hp: 20, speed: 55, contactDamage: 8, xp: 4, size: 32, weight: 5 },
+  bat: { hp: 10, speed: 155, contactDamage: 6, xp: 3, size: 28, weight: 4 },
+  skeleton: { hp: 40, speed: 85, contactDamage: 13, xp: 7, size: 36, weight: 3 },
+  elite: { hp: 220, speed: 72, contactDamage: 26, xp: 40, size: 44, weight: 0 },
   // Tiny RPG Forest by Ansimuz (CC0)
-  treant: { hp: 160, speed: 48, contactDamage: 24, xp: 22, size: 42, weight: 0 },
-  mole: { hp: 18, speed: 180, contactDamage: 11, xp: 6, size: 22, weight: 0 },
+  treant: { hp: 160, speed: 48, contactDamage: 24, xp: 22, size: 46, weight: 0 },
+  mole: { hp: 18, speed: 180, contactDamage: 11, xp: 6, size: 30, weight: 0 },
   // 2D Pixel Dungeon Asset Pack by Pixel_Poem (commercial OK)
-  skeleton2: { hp: 80, speed: 68, contactDamage: 19, xp: 12, size: 32, weight: 0 },
-  vampire: { hp: 30, speed: 145, contactDamage: 18, xp: 10, size: 28, weight: 0 },
+  skeleton2: { hp: 80, speed: 68, contactDamage: 19, xp: 12, size: 36, weight: 0 },
+  vampire: { hp: 30, speed: 145, contactDamage: 18, xp: 10, size: 34, weight: 0 },
   // Creature Free Pack by Electric Lemon Games (commercial OK)
-  goblin: { hp: 35, speed: 115, contactDamage: 12, xp: 8, size: 38, weight: 4 },
-  orc: { hp: 120, speed: 62, contactDamage: 28, xp: 18, size: 46, weight: 0 },
-  mummy: { hp: 200, speed: 38, contactDamage: 11, xp: 16, size: 44, weight: 0 },
-  zombie: { hp: 50, speed: 50, contactDamage: 16, xp: 6, size: 40, weight: 5 },
-  fire_skull: { hp: 60, speed: 135, contactDamage: 20, xp: 14, size: 36, weight: 0 },
+  goblin: { hp: 35, speed: 115, contactDamage: 12, xp: 8, size: 34, weight: 4 },
+  orc: { hp: 120, speed: 62, contactDamage: 28, xp: 18, size: 40, weight: 0 },
+  mummy: { hp: 200, speed: 38, contactDamage: 11, xp: 16, size: 38, weight: 0 },
+  zombie: { hp: 50, speed: 50, contactDamage: 16, xp: 6, size: 34, weight: 5 },
+  fire_skull: { hp: 60, speed: 135, contactDamage: 20, xp: 14, size: 32, weight: 0 },
 } as const;
 
 // Параметры босса (ТЗ §21). HP/урон масштабируются множителем волны.
