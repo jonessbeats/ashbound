@@ -124,6 +124,8 @@ export default class GameScene extends Phaser.Scene {
     };
 
     const onChestPicked = (data: { weaponId: WeaponId; isUpgrade: boolean }) => {
+      // Игнорируем если сцена уже не активна (старый listener от прошлой локации).
+      if (!this.scene?.isActive() || !this.physics?.world) return;
       if (data.isUpgrade) {
         this.weaponManager.upgradeWeapon(data.weaponId);
       } else {
@@ -134,6 +136,7 @@ export default class GameScene extends Phaser.Scene {
     };
 
     const onUpgrade = (id: Parameters<typeof applyUpgrade>[1]) => {
+      if (!this.scene?.isActive() || !this.physics?.world) return;
       applyUpgrade(this.player, id);
       this.running = true;
       this.physics.resume();
@@ -158,14 +161,16 @@ export default class GameScene extends Phaser.Scene {
     EventBus.on(GameEvents.START_LOCATION, onStartLocation);
     EventBus.on(GameEvents.RESTART, onRestart);
 
-    // SHUTDOWN: снимаем ТОЛЬКО свои хэндлеры по ссылке.
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+    // SHUTDOWN/DESTROY: снимаем ТОЛЬКО свои хэндлеры по ссылке.
+    const cleanup = () => {
       EventBus.off(GameEvents.MOVE_INPUT, onMove);
       EventBus.off(GameEvents.UPGRADE_PICKED, onUpgrade);
       EventBus.off(GameEvents.CHEST_PICKED, onChestPicked);
       EventBus.off(GameEvents.START_LOCATION, onStartLocation);
       EventBus.off(GameEvents.RESTART, onRestart);
-    });
+    };
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, cleanup);
+    this.events.once(Phaser.Scenes.Events.DESTROY, cleanup);
   }
 
   // ── Запуск локации с нуля ──
