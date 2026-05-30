@@ -12,6 +12,7 @@ export const metadata: Metadata = {
   description: 'Mobile-first pixel RPG survivor roguelite on Base.',
   other: {
     'base:app_id': '6a144c85ed0edcf2e9a876fb',
+    'talentapp:project_verification': 'd875b0033aedda75860f2ccde543ae6e518381014ca7235f06990afa8efe7174ea967180a13e43682d2f607467c3d238c2e46313dcabe4e67c59fdf95b53edff',
   },
 };
 
