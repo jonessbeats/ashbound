@@ -60,7 +60,7 @@ export default class GameScene extends Phaser.Scene {
     this.physics.world.setBounds(0, 0, ARENA.width, ARENA.height);
     this.cameras.main.setBounds(0, 0, ARENA.width, ARENA.height);
     this.cameras.main.setBackgroundColor('#0a0c14');
-    this.cameras.main.setZoom(1.7);
+    this.cameras.main.setZoom(1.25);
 
     this.enemies = this.physics.add.group({ runChildUpdate: false });
     this.projectiles = this.physics.add.group();
