@@ -1,164 +1,103 @@
 # Ashbound: Base Survivors
 
-Mobile-first pixel RPG survivor roguelite для Base App / web. Игрок отбивается
-от бесконечных волн врагов, прокачивается, а после смерти может заминтить
-NFT-бейдж за свой run прямо в сети Base.
+> Mobile-first pixel RPG survivor roguelite, fully onchain on **Base**.
 
-Стек: **Next.js 14 · TypeScript · TailwindCSS · Phaser 3 · wagmi · viem · Solidity (ERC-721)**.
+Survive endless waves, clear locations, level up your loadout, and mint NFT badges for your runs — all onchain. Built as a Base App-ready web game with wallet-native progression.
+
+**Live:** [ashbound.xyz](https://ashbound.xyz) · **Chain:** Base Mainnet (8453)
 
 ---
 
-## Быстрый старт
+## Features
+
+- **Survivor roguelite gameplay** — auto-attacking weapons, wave-based survival, escalating difficulty
+- **6-weapon system** — sword, axe, dagger, spear, bow, staff, each with unique behavior (melee arcs, homing projectiles, piercing). Up to 4 simultaneous weapon slots
+- **5 handcrafted locations** with distinct enemies, bosses, and difficulty curves
+- **13 enemy types** + boss fights with multi-phase fire attacks
+- **Onchain NFT badges** — mint an ERC-721 badge per cleared location (Base mainnet)
+- **Daily onchain check-in** — free, streak-tracking GM mechanic
+- **Builder Code attribution** — all transactions carry onchain attribution
+- **Mobile-first** — touch joystick, responsive canvas, designed for phones
+
+---
+
+## Tech Stack
+
+| Layer | Tech |
+|---|---|
+| Framework | Next.js 14 (App Router) · TypeScript |
+| Game engine | Phaser 3 |
+| Styling | TailwindCSS |
+| Web3 | wagmi · viem · ox |
+| Contracts | Solidity (ERC-721) · Hardhat |
+| Chain | Base (mainnet + Sepolia) |
+| Deploy | Vercel |
+
+---
+
+## Smart Contracts
+
+| Contract | Purpose | Standard |
+|---|---|---|
+| `AshboundRunBadge.sol` | Per-location NFT badges, minted on clear | ERC-721 |
+| `AshboundCheckIn.sol` | Free daily onchain check-in with streak tracking | Custom |
+
+Both deployed and verified on Base Mainnet.
+
+---
+
+## Getting Started
 
 ```bash
 npm install
 npm run dev
 ```
 
-Открой `http://localhost:3000`. Игра запускается с placeholder-графикой
-(текстуры генерируются кодом в `BootScene`) — внешние ассеты не нужны.
+Open `http://localhost:3000`. The game boots with code-generated placeholder textures — no external assets required to run.
 
-Скопируй `.env.example` → `.env.local` и заполни переменные (без них игра
-работает, но минт бейджа будет недоступен).
+Copy `.env.example` → `.env.local` and fill in the variables (the game runs without them, but minting requires the contract addresses).
 
----
-
-## Команды
-
-| Команда | Что делает |
-|---|---|
-| `npm run dev` | Дев-сервер на :3000 |
-| `npm run build` | Продакшен-сборка |
-| `npm run start` | Запуск собранного приложения |
-| `npm run lint` | Проверка ESLint |
-| `npm run smoketest` | Браузерный смоук-тест (нужен Playwright, см. ниже) |
-| `npm run contracts:compile` | Компиляция контракта (нужен Hardhat) |
-| `npm run contracts:deploy` | Деплой на Base Sepolia |
-
----
-
-## Деплой
-
-### Фронтенд — Vercel
-
-```bash
-npm install -g vercel
-vercel
-```
-
-Задай переменные окружения в настройках проекта Vercel (см. `.env.example`).
-
-### Контракт — Base Sepolia
-
-Hardhat-зависимости ставятся отдельно (один раз):
-
-```bash
-npm install -D hardhat @nomicfoundation/hardhat-toolbox @openzeppelin/contracts dotenv
-```
-
-Затем:
-
-```bash
-npm run contracts:compile
-npm run contracts:deploy
-```
-
-Скрипт выведет адрес контракта — впиши его в `.env.local`:
-
-```
+```env
+NEXT_PUBLIC_CHAIN_ID=8453
 NEXT_PUBLIC_CONTRACT_ADDRESS=0x...
-```
-
-Для деплоя в `.env` нужен `DEPLOYER_PRIVATE_KEY` с тестовым ETH на Base Sepolia
-(faucet: bridge.base.org / coinbase faucet).
-
----
-
-## Структура проекта
-
-```
-/contracts
-  AshboundRunBadge.sol      ERC-721 бейдж, метаданные генерируются on-chain
-/scripts
-  deploy.ts                 Hardhat-скрипт деплоя
-/src
-  /app
-    layout.tsx              Root layout + viewport + Providers
-    page.tsx                Переключение Main Menu <-> игра
-    globals.css
-  /components
-    MainMenu.tsx            Главный экран
-    GameContainer.tsx       Монтирует Phaser, накладывает React-UI
-    HUD.tsx                 HP / XP / таймер / счёт
-    Joystick.tsx            Виртуальный джойстик (mobile)
-    UpgradeModal.tsx        Выбор апгрейда при level up
-    GameOverModal.tsx       Экран смерти + минт бейджа
-    WalletConnect.tsx       Подключение кошелька
-    Providers.tsx           WagmiProvider + React Query
-  /game
-    phaserGame.ts           Создание Phaser-инстанса
-    BootScene.ts            Генерация placeholder-текстур
-    GameScene.ts            Весь геймплей
-    Player.ts / Enemy.ts / Projectile.ts / XPOrb.ts
-    config.ts               Все игровые константы
-    upgrades.ts             Пул апгрейдов
-    types.ts                Общие типы
-    EventBus.ts             Связь Phaser <-> React
-  /web3
-    chains.ts               Конфиг сети Base
-    wagmiConfig.ts          wagmi: сети + коннекторы
-    contract.ts             ABI контракта
-    mintRunBadge.ts         Хук минта бейджа
-    localProgress.ts        Прогресс в localStorage
-```
-
-### Связь Phaser ↔ React
-
-Phaser-сцена и React общаются через единый `EventBus` (`src/game/EventBus.ts`) —
-без Redux и state-машин. Сцена эмитит `HUD_UPDATE` / `LEVEL_UP` / `GAME_OVER`,
-React эмитит `MOVE_INPUT` / `UPGRADE_PICKED` / `RESTART`.
-
----
-
-## Геймплей
-
-Управление: виртуальный джойстик слева (mobile) или WASD / стрелки (desktop).
-Атака автоматическая — болт летит в ближайшего врага. XP с убитых врагов
-притягивается к игроку; на level up игра встаёт на паузу и предлагает 3 апгрейда.
-Сложность растёт каждые 30 секунд. Все игровые числа — в `src/game/config.ts`.
-
----
-
-## Тесты
-
-`smoketest.cjs` прогоняет меню → старт → рендер canvas → геймплей в эмуляции
-iPhone. Нужен Playwright с браузером:
-
-```bash
-npx playwright install chromium
-npm run smoketest
+NEXT_PUBLIC_CHECKIN_ADDRESS=0x...
 ```
 
 ---
 
-## Известные ограничения и Roadmap
+## Scripts
 
-**Сейчас (MVP):**
-- Placeholder-графика (цветные фигуры) — генерируется в `BootScene`
-- Один тип оружия (Firebolt), одна арена
-- Минт NFT на Base Sepolia (testnet)
+| Command | Description |
+|---|---|
+| `npm run dev` | Dev server on :3000 |
+| `npm run build` | Production build |
+| `npm run contracts:compile` | Compile Solidity contracts |
+| `npm run contracts:deploy` | Deploy badge contract to Base Sepolia |
+| `npm run contracts:deploy:mainnet` | Deploy badge contract to Base Mainnet |
 
-**Дальше:**
-- Заменить placeholder-текстуры на настоящий pixel-art (`/public/assets`)
-- Доп. оружие: Sword Aura, Orbit Rune, Chain Lightning (ТЗ §25)
-- Босс на 5-й минуте
-- OnchainKit для более гладкого wallet-UX в Base App
-- Деплой контракта на Base Mainnet
-- Опциональный Supabase-лидерборд
-- Звук и музыка
-- Полировка: эффекты, частицы, экран загрузки
+---
 
-**Технический долг:**
-- `next.config.mjs` гасит warnings опциональных RN-зависимостей wagmi —
-  при апдейте wagmi проверить, актуально ли ещё
+## Architecture
+
 ```
+src/
+├── app/              Next.js routes + layout
+├── components/       React UI (HUD, menus, modals, wallet)
+├── game/             Phaser game logic
+│   ├── GameScene.ts      Main gameplay loop
+│   ├── BootScene.ts      Asset loading + animations
+│   ├── Enemy.ts          Enemy entity + AI
+│   ├── Boss.ts           Boss entity + phases
+│   ├── locations.ts      Location/wave configuration
+│   ├── upgrades.ts       Level-up system
+│   └── weapons/          Weapon system (manager, types, projectiles)
+└── web3/             wagmi config, contract ABIs, hooks
+```
+
+The game communicates with React through a lightweight `EventBus` — Phaser emits gameplay events (HUD updates, level-ups, game over), React renders the UI layer on top of the canvas.
+
+---
+
+## License
+
+All rights reserved. Game code is source-available for review; assets are licensed separately (see asset credits in-repo).
