@@ -1,10 +1,4 @@
 'use client';
-
-// ────────────────────────────────────────────────────────────────
-// DailyCheckIn.tsx — компактная кнопка ежедневного on-chain чек-ина.
-// Показывает streak. Бесплатно (только газ на Base).
-// ────────────────────────────────────────────────────────────────
-
 import { useAccount } from 'wagmi';
 import { useCheckIn } from '@/web3/useCheckIn';
 import { activeChain } from '@/web3/chains';
@@ -23,11 +17,9 @@ export default function DailyCheckIn({ className = '' }: { className?: string })
     wrongNetwork,
   } = useCheckIn();
 
-  // Кнопка имеет смысл только при подключённом кошельке.
   if (!isConnected) return null;
 
   const busy = isPending || isConfirming || isSwitching;
-  // Кнопка активна: если можно чекиниться ИЛИ нужно переключить сеть.
   const disabled = busy || (!canCheckIn && !wrongNetwork);
 
   let label = 'GM · Daily Check-in';
@@ -52,7 +44,7 @@ export default function DailyCheckIn({ className = '' }: { className?: string })
         {label}
       </button>
 
-      {/* Streak-инфо */}
+      
       {(streak > 0 || bestStreak > 0) && (
         <div className="text-center font-mono text-xs text-slate-400">
           <span>

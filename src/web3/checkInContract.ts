@@ -1,8 +1,3 @@
-// ────────────────────────────────────────────────────────────────
-// checkInContract.ts — ABI контракта AshboundCheckIn.
-// Бесплатный ежедневный on-chain чек-ин со стриками.
-// ────────────────────────────────────────────────────────────────
-
 export { CHECKIN_ADDRESS } from './chains';
 
 export const CHECKIN_ABI = [

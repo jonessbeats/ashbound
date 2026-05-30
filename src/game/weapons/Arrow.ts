@@ -1,13 +1,8 @@
-// ────────────────────────────────────────────────────────────────
-// Arrow.ts — стрела лука. Летит в цель с лёгким хомингом.
-// Слабее чем у фаербола — стрела почти прямая, но докручивается.
-// ────────────────────────────────────────────────────────────────
-
 import * as Phaser from 'phaser';
 import type Enemy from '../Enemy';
 
 const ARROW_SPEED = 450;
-const HOMING_STRENGTH = 0.22; // сильный хоминг — стрела ВСЕГДА попадает
+const HOMING_STRENGTH = 0.22;
 
 export default class Arrow extends Phaser.Physics.Arcade.Sprite {
   public damage: number;
@@ -57,7 +52,6 @@ export default class Arrow extends Phaser.Physics.Arcade.Sprite {
   public manualUpdate(delta: number): void {
     if (!this.active) return;
 
-    // Лёгкий хоминг — если цель ещё жива, плавно докручиваем направление.
     if (this.target && (this.target as Enemy).active !== false) {
       const desiredAngle = Math.atan2(this.target.y - this.y, this.target.x - this.x);
       const currentAngle = Math.atan2(this.vy, this.vx);

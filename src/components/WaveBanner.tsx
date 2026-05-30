@@ -1,11 +1,4 @@
 'use client';
-
-// ────────────────────────────────────────────────────────────────
-// WaveBanner.tsx — баннер «Wave N» поверх игры.
-// Появляется на паузе между волнами (intermission), затем исчезает.
-// Данные приходят из Phaser событием WAVE_CHANGED.
-// ────────────────────────────────────────────────────────────────
-
 import { useEffect, useState } from 'react';
 import { EventBus, GameEvents } from '@/game/EventBus';
 import type { WaveState } from '@/game/types';
@@ -17,10 +10,8 @@ export default function WaveBanner() {
 
   useEffect(() => {
     const onWave = (s: WaveState) => {
-      // Показываем баннер только в паузе перед волной.
       if (s.intermission) {
         setBanner({ wave: s.current, total: s.total, boss: s.boss });
-        // Прячем через 2.2с (чуть короче паузы между волнами).
         const t = setTimeout(() => setBanner(null), 2200);
         return () => clearTimeout(t);
       } else {

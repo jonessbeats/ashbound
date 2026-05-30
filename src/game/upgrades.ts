@@ -1,25 +1,17 @@
-// ────────────────────────────────────────────────────────────────
-// upgrades.ts — пул апгрейдов и логика применения.
-// ВАЖНО: каждый стат имеет ЛИМИТ по количеству применений.
-// Это не даёт игроку собрать имбобилд за 5 минут.
-// ────────────────────────────────────────────────────────────────
-
 import type { Upgrade, UpgradeId } from './types';
 import type Player from './Player';
 
-// Сколько раз можно взять каждый апгрейд за run.
 export const UPGRADE_LIMITS: Record<UpgradeId, number> = {
   damage: 4,
   moveSpeed: 3,
   attackCooldown: 4,
   maxHp: 5,
   pickupRadius: 3,
-  critChance: 4,           // макс 32% крита (4 × 8%)
+  critChance: 4,
   projectileSpeed: 3,
-  projectileCount: 3,      // макс +45% range (3 × 15%)
+  projectileCount: 3,
 };
 
-// Счётчик использований за текущий run (сбрасывается при beginLocation).
 const usedCount: Partial<Record<UpgradeId, number>> = {};
 
 export function resetUpgradeCounts(): void {
@@ -30,7 +22,6 @@ function isAvailable(id: UpgradeId): boolean {
   return (usedCount[id] ?? 0) < UPGRADE_LIMITS[id];
 }
 
-// Полный список апгрейдов.
 export const UPGRADE_POOL: Upgrade[] = [
   { id: 'damage', title: '+12% Damage', description: 'All weapons hit harder' },
   { id: 'moveSpeed', title: '+10% Move Speed', description: 'Move faster — live longer' },
@@ -42,7 +33,6 @@ export const UPGRADE_POOL: Upgrade[] = [
   { id: 'projectileCount', title: '+15% Weapon Range', description: 'Melee reach & ranged distance' },
 ];
 
-// Выбрать 3 случайных разных апгрейда — только из доступных (не исчерпанных).
 export function rollUpgrades(): Upgrade[] {
   const pool = UPGRADE_POOL.filter((u) => isAvailable(u.id));
   const out: Upgrade[] = [];
@@ -51,15 +41,12 @@ export function rollUpgrades(): Upgrade[] {
     const i = Math.floor(Math.random() * work.length);
     out.push(work.splice(i, 1)[0]);
   }
-  // Если меньше 3 опций (всё исчерпано) — добавим maxHp как safe-апгрейд
   while (out.length < 3) {
     out.push({ id: 'maxHp', title: '+10 Max HP', description: 'Tiny bonus' });
   }
   return out;
 }
 
-// Типизированный геттер WeaponManager-а. Безопасный — возвращает undefined
-// если сцена или менеджер ещё не готовы.
 function getWM(player: Player): {
   slots: { damage: number; cooldown: number; range: number }[]
 } | undefined {
@@ -74,9 +61,7 @@ function getWM(player: Player): {
   };
 }
 
-// Применить выбранный апгрейд к игроку.
 export function applyUpgrade(player: Player, id: UpgradeId): void {
-  // Засчитываем использование
   usedCount[id] = (usedCount[id] ?? 0) + 1;
 
   const s = player.stats;
@@ -104,7 +89,7 @@ export function applyUpgrade(player: Player, id: UpgradeId): void {
       s.pickupRadius += 25;
       break;
     case 'critChance':
-      s.critChance = Math.min(0.4, s.critChance + 0.08); // потолок 40%
+      s.critChance = Math.min(0.4, s.critChance + 0.08);
       break;
     case 'projectileSpeed':
       s.projectileSpeed = Math.round(s.projectileSpeed * 1.10);

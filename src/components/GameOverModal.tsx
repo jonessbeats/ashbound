@@ -1,12 +1,4 @@
 'use client';
-
-// ────────────────────────────────────────────────────────────────
-// GameOverModal.tsx — экран конца run.
-// Две концовки: VICTORY (локация пройдена) и YOU DIED (игрок погиб).
-// Кнопки: Restart / Next Location (только при победе) / Mint / Share.
-// Минт бейджа — реальная onchain-транзакция на Base (ТЗ §31–32).
-// ────────────────────────────────────────────────────────────────
-
 import { useEffect, useRef, useState } from 'react';
 import { useAccount } from 'wagmi';
 import { EventBus, GameEvents } from '@/game/EventBus';
@@ -24,9 +16,6 @@ export default function GameOverModal() {
 
   const { isConnected } = useAccount();
 
-  // Числовой locationId — то, что принимает контракт. Считаем заранее,
-  // не дожидаясь результата (если result.locationId неизвестен — null,
-  // хук не активен).
   const numericLocationId =
     result && getLocationIndex(result.locationId) >= 0
       ? getLocationIndex(result.locationId)
@@ -37,10 +26,9 @@ export default function GameOverModal() {
   const mintRef = useRef(mint);
   mintRef.current = mint;
 
-  // Слушаем конец run из Phaser (победа или смерть).
   useEffect(() => {
     const onGameOver = (r: RunResult) => {
-      const progress = saveRun(r); // сохранить + отметить локацию пройденной
+      const progress = saveRun(r);
       mintRef.current.reset();
       setResult(r);
       setBestScore(progress.bestScore);
@@ -58,17 +46,14 @@ export default function GameOverModal() {
   const mm = Math.floor(result.survivalTime / 60);
   const ss = (result.survivalTime % 60).toString().padStart(2, '0');
 
-  // Есть ли следующая локация после пройденной.
   const idx = getLocationIndex(result.locationId);
   const nextLocation = victory && idx >= 0 ? LOCATIONS[idx + 1] : undefined;
 
-  // Перезапустить ту же локацию.
   const restart = () => {
     EventBus.emit(GameEvents.RESTART);
     setResult(null);
   };
 
-  // Перейти к следующей локации.
   const goNext = () => {
     if (!nextLocation) return;
     EventBus.emit(GameEvents.START_LOCATION, nextLocation.id);
@@ -98,9 +83,6 @@ export default function GameOverModal() {
     ['Total Runs', totalRuns.toLocaleString()],
   ];
 
-  // ── Текст кнопки минта по стадии транзакции ──
-  // Минт ДОСТУПЕН ТОЛЬКО при полной победе над локацией (включая босса).
-  // Если уже минтил эту локацию ранее — кнопка disabled со специальным текстом.
   let mintLabel = 'MINT RUN BADGE';
   if (mint.alreadyMinted) mintLabel = '✓ ALREADY MINTED';
   else if (mint.isSwitching) mintLabel = 'SWITCH NETWORK IN WALLET…';
@@ -127,7 +109,7 @@ export default function GameOverModal() {
         </>
       )}
 
-      {/* Таблица статов run */}
+      
       <div className="mb-6 w-full max-w-sm rounded-lg border border-slate-700/60 bg-slate-900/80 p-4">
         {stats.map(([label, value]) => (
           <div
@@ -140,9 +122,9 @@ export default function GameOverModal() {
         ))}
       </div>
 
-      {/* Кнопки действий — все 44px+ (ТЗ §12) */}
+      
       <div className="flex w-full max-w-sm flex-col gap-3">
-        {/* При победе и наличии следующей локации — кнопка перехода */}
+        
         {nextLocation && (
           <button
             onClick={goNext}
@@ -164,7 +146,7 @@ export default function GameOverModal() {
           {victory ? 'REPLAY LOCATION' : 'RETRY'}
         </button>
 
-        {/* Минт бейджа — только при победе. После смерти кнопка скрыта. */}
+        
         {!victory ? null : !isConnected ? (
           <WalletConnect className="w-full" />
         ) : (
@@ -179,7 +161,7 @@ export default function GameOverModal() {
 
         {mint.error && <p className="text-center text-xs text-red-400">{mint.error}</p>}
 
-        {/* После успешного минта — показываем бейдж */}
+        
         {mint.isSuccess && numericLocationId !== null && (
           <div className="flex flex-col items-center gap-2 rounded-xl border border-amber-500/30 bg-slate-900/80 p-4">
             <img

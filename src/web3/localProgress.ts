@@ -1,8 +1,3 @@
-// ────────────────────────────────────────────────────────────────
-// localProgress.ts — локальный прогресс через localStorage (ТЗ §30).
-// Хранит лучший счёт, число run'ов, лучшее время и пройденные локации.
-// ────────────────────────────────────────────────────────────────
-
 import type { RunResult } from '@/game/types';
 import { LOCATIONS, FIRST_LOCATION_ID } from '@/game/locations';
 
@@ -11,8 +6,8 @@ const KEY = 'ashbound:progress';
 export interface LocalProgress {
   bestScore: number;
   totalRuns: number;
-  bestSurvivalTime: number; // секунды
-  clearedLocations: string[]; // id пройденных локаций
+  bestSurvivalTime: number;
+  clearedLocations: string[];
 }
 
 const EMPTY: LocalProgress = {
@@ -22,7 +17,6 @@ const EMPTY: LocalProgress = {
   clearedLocations: [],
 };
 
-// Прочитать прогресс. Безопасно при SSR и битых данных.
 export function loadProgress(): LocalProgress {
   if (typeof window === 'undefined') return EMPTY;
   try {
@@ -33,8 +27,6 @@ export function loadProgress(): LocalProgress {
   }
 }
 
-// Записать результат run и вернуть обновлённый прогресс.
-// Если run победный — отмечаем локацию как пройденную.
 export function saveRun(result: RunResult): LocalProgress {
   const prev = loadProgress();
   const cleared = [...prev.clearedLocations];
@@ -50,13 +42,10 @@ export function saveRun(result: RunResult): LocalProgress {
   try {
     window.localStorage.setItem(KEY, JSON.stringify(next));
   } catch {
-    // localStorage недоступен (приватный режим) — молча игнорируем.
   }
   return next;
 }
 
-// Открыта ли локация для игры.
-// DEV MODE: все локации открыты всегда.
 export function isLocationUnlocked(_locationId: string, _cleared: string[]): boolean {
   return true;
 }

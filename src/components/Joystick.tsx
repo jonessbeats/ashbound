@@ -1,24 +1,14 @@
 'use client';
-
-// ────────────────────────────────────────────────────────────────
-// Joystick.tsx — виртуальный джойстик для мобилок (ТЗ §11).
-// Появляется в точке касания в левой половине экрана.
-// Шлёт направление (-1..1) в Phaser через EventBus.
-// ────────────────────────────────────────────────────────────────
-
 import { useRef, useState, useCallback } from 'react';
 import { EventBus, GameEvents } from '@/game/EventBus';
 
-const MAX_RADIUS = 56; // максимальный сдвиг ручки от центра (px)
+const MAX_RADIUS = 56;
 
 export default function Joystick() {
-  // Видим ли джойстик и где он стоит.
   const [base, setBase] = useState<{ x: number; y: number } | null>(null);
-  // Смещение ручки относительно базы.
   const [knob, setKnob] = useState({ x: 0, y: 0 });
   const touchId = useRef<number | null>(null);
 
-  // Отправить нормализованное направление в Phaser.
   const emitMove = useCallback((dx: number, dy: number) => {
     const len = Math.hypot(dx, dy);
     const max = MAX_RADIUS;
@@ -33,7 +23,6 @@ export default function Joystick() {
     }
   }, []);
 
-  // Палец коснулся экрана — ставим базу джойстика здесь.
   const onStart = (e: React.TouchEvent) => {
     const t = e.changedTouches[0];
     touchId.current = t.identifier;
@@ -41,7 +30,6 @@ export default function Joystick() {
     setKnob({ x: 0, y: 0 });
   };
 
-  // Палец двигается — сдвигаем ручку и шлём направление.
   const onMove = (e: React.TouchEvent) => {
     if (!base) return;
     const t = Array.from(e.changedTouches).find((x) => x.identifier === touchId.current);
@@ -57,7 +45,6 @@ export default function Joystick() {
     emitMove(dx, dy);
   };
 
-  // Палец убран — джойстик прячется, движение в ноль.
   const onEnd = () => {
     touchId.current = null;
     setBase(null);
@@ -67,10 +54,6 @@ export default function Joystick() {
 
   return (
     <div
-      // Зона захвата — ВЕСЬ экран. На любое касание поднимается джойстик
-      // там, где палец коснулся. HUD и WaveBanner имеют pointer-events:none,
-      // так что они не воруют касания. Кнопка EXIT — реальная кнопка с z-30,
-      // её клик не доходит сюда, всё остальное — джойстик.
       className="absolute inset-0 z-10 touch-none"
       onTouchStart={onStart}
       onTouchMove={onMove}
@@ -79,12 +62,12 @@ export default function Joystick() {
     >
       {base && (
         <>
-          {/* База джойстика */}
+          
           <div
             className="pointer-events-none absolute h-32 w-32 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-amber-400/30 bg-slate-900/40"
             style={{ left: base.x, top: base.y }}
           />
-          {/* Ручка джойстика */}
+          
           <div
             className="pointer-events-none absolute h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-amber-400/70 bg-amber-500/40"
             style={{ left: base.x + knob.x, top: base.y + knob.y }}

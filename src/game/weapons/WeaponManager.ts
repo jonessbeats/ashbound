@@ -1,7 +1,3 @@
-// ────────────────────────────────────────────────────────────────
-// WeaponManager — DEBUG версия. Логирует всё, иконки крупные.
-// ────────────────────────────────────────────────────────────────
-
 import * as Phaser from 'phaser';
 import type Player from '../Player';
 import type Enemy from '../Enemy';
@@ -32,7 +28,7 @@ export default class WeaponManager {
   public projectiles!: Phaser.Physics.Arcade.Group;
   public arrows!: Phaser.Physics.Arcade.Group;
   public onKillBoss: (() => void) | null = null;
-  public onKill: ((e: Enemy) => void) | null = null; // вызывается когда враг умер от melee
+  public onKill: ((e: Enemy) => void) | null = null;
 
   private icons: Phaser.GameObjects.Image[] = [];
 
@@ -42,8 +38,6 @@ export default class WeaponManager {
     this.addWeapon(startWeapon);
   }
 
-  // Полный сброс к стартовому состоянию (1 меч, базовые статы оружия).
-  // Вызывается при входе в локацию — каждый забег начинается с нуля.
   public reset(startWeapon: WeaponId = 'sword'): void {
     this.icons.forEach((ic) => { try { ic.destroy(); } catch { /**/ } });
     this.icons = [];
@@ -53,8 +47,6 @@ export default class WeaponManager {
 
   public setPlayer(player: Player): void {
     this.player = player;
-    // Сбрасываем cooldown'ы всех оружий — иначе на новой локе оружия "ждут"
-    // старое значение nextAttackAt из прошлой локи и не атакуют.
     this.slots.forEach((ws) => { ws.nextAttackAt = 0; });
     this.rebuildIcons();
     console.log('[WM] setPlayer at', player.x, player.y, 'slots:', this.slots.length, 'icons:', this.icons.length);
@@ -84,8 +76,6 @@ export default class WeaponManager {
   private rebuildIcons(): void {
     this.icons.forEach((ic) => { try { ic.destroy(); } catch { /**/ } });
     this.icons = [];
-    // Игрок может быть ещё не в физике — создаём иконки в 0,0,
-    // updateIconPositions их потом переместит когда player.x появится.
     const px = (typeof this.player?.x === 'number') ? this.player.x : 0;
     const py = (typeof this.player?.y === 'number') ? this.player.y : 0;
 
@@ -132,13 +122,10 @@ export default class WeaponManager {
 
   public tick(elapsedMs: number, enemiesRaw: Phaser.GameObjects.GameObject[], bossRaw: Boss | null): void {
 
-    // Иконки создаём/обновляем независимо от состояния игрока
     if (this.icons.length < this.slots.length) this.rebuildIcons();
     this.updateIconPositions();
 
-    // Для атак нужен живой игрок
     if (!isAlive(this.player)) return;
-
 
     const enemies: Enemy[] = [];
     for (const e of enemiesRaw) {
@@ -166,13 +153,11 @@ export default class WeaponManager {
     const inRange: Enemy[] = [];
     for (const e of enemies) {
       if (!isAlive(e)) continue;
-      // Радиус считаем от КРАЯ врага, не от центра — большие враги бьются с запаса
       const eRadius = ((e as unknown as { displayWidth?: number }).displayWidth ?? 24) / 2;
       const d = Phaser.Math.Distance.Between(px, py, e.x, e.y) - eRadius;
       if (d <= ws.range) inRange.push(e);
     }
     if (boss && isAlive(boss)) {
-      // Босс крупный — его displayWidth большой, поэтому радиус ощутимый
       const bRadius = ((boss as unknown as { displayWidth?: number }).displayWidth ?? 80) / 2;
       const d = Phaser.Math.Distance.Between(px, py, boss.x, boss.y) - bRadius;
       if (d <= ws.range) {
@@ -207,8 +192,6 @@ export default class WeaponManager {
         try {
           const died = e.takeDamage(dmg);
           if (died) {
-            // Если это босс (был ли в inRange исходно бо boss?) — onKillBoss
-            // Различаем по отсутствию kind у Boss
             if ((e as unknown as { kind?: unknown }).kind === undefined) {
               if (this.onKillBoss) this.onKillBoss();
             } else {
@@ -248,18 +231,14 @@ export default class WeaponManager {
     const dmg = isCrit ? ws.damage * 2 : ws.damage;
     const speed = ws.def.projectileSpeed ?? 350;
 
-    // Спавним снаряд от позиции иконки оружия (лук, посох) — выглядит так
-    // будто стрела вылетает из лука, а фаербол — из посоха.
     const icon = this.icons[slotIdx];
     const spawnX = icon?.active ? icon.x : px;
     const spawnY = icon?.active ? icon.y : py;
 
     try {
       if (ws.def.id === 'bow') {
-        // Лук — стрела (отдельный спрайт, лёгкий хоминг)
         this.arrows.add(new Arrow(this.scene, spawnX, spawnY, angle, speed, dmg, isCrit, ws.range, target as unknown as Enemy));
       } else {
-        // Посох и др. — хоминг-фаербол
         this.projectiles.add(new Projectile(this.scene, spawnX, spawnY, angle, speed, dmg, isCrit, target as unknown as Enemy));
       }
     } catch { /**/ }
@@ -294,8 +273,6 @@ export default class WeaponManager {
       if (icon.active) icon.setAlpha(1.0);
       return;
     }
-
-    // Камера-флеш убран — был слишком назойливый при множественных критах.
 
     this.scene.tweens.add({
       targets: { t: 0 },

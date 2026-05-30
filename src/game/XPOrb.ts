@@ -1,16 +1,9 @@
-// ────────────────────────────────────────────────────────────────
-// XPOrb.ts — XP-орб. Падает с убитого врага.
-// Притягивается к игроку, когда тот в радиусе подбора (ТЗ §26).
-// Анимированные монеты/гемы из Tiny RPG Forest by Ansimuz (CC0).
-// ────────────────────────────────────────────────────────────────
-
 import * as Phaser from 'phaser';
 
 export default class XPOrb extends Phaser.Physics.Arcade.Sprite {
   public value: number;
 
   constructor(scene: Phaser.Scene, x: number, y: number, value: number) {
-    // Гемы (value >= 30) — с элиток, монеты — обычные
     const texKey = value >= 30 ? 'xp-gem' : 'xp-coin';
     super(scene, x, y, texKey);
     scene.add.existing(this);
@@ -20,11 +13,9 @@ export default class XPOrb extends Phaser.Physics.Arcade.Sprite {
     this.setDepth(4);
     this.setScale(value >= 30 ? 2.0 : 1.5);
 
-    // Запускаем анимацию вращения
     this.play(texKey + '-spin');
   }
 
-  // Притянуться к игроку, если он ближе радиуса подбора.
   public magnetTo(px: number, py: number, radius: number): void {
     const dx = px - this.x;
     const dy = py - this.y;
@@ -37,7 +28,6 @@ export default class XPOrb extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
-  // Принудительное притяжение — автосбор между волнами.
   public forceMagnetTo(px: number, py: number): void {
     const dx = px - this.x;
     const dy = py - this.y;

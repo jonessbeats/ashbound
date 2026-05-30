@@ -1,10 +1,4 @@
 'use client';
-
-// ────────────────────────────────────────────────────────────────
-// ChestModal.tsx — выбор оружия/апгрейда из сундука.
-// Появляется каждые 2 волны. Игра на паузе, пока открыта.
-// ────────────────────────────────────────────────────────────────
-
 import { useEffect, useState } from 'react';
 import { EventBus, GameEvents } from '@/game/EventBus';
 import { WEAPON_REGISTRY } from '@/game/weapons/weaponTypes';
@@ -15,7 +9,6 @@ interface ChestOption {
   isUpgrade: boolean;
 }
 
-// Карта оружия → файл спрайта (как в BootScene).
 const WEAPON_SPRITE: Record<WeaponId, string> = {
   sword:  '/assets/sprites/weapon_1.png',
   axe:    '/assets/sprites/weapon_6.png',

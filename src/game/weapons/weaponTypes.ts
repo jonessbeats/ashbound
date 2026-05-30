@@ -1,7 +1,3 @@
-// ────────────────────────────────────────────────────────────────
-// weaponTypes.ts — типы и реестр всех оружий.
-// ────────────────────────────────────────────────────────────────
-
 export type WeaponId = 'sword' | 'axe' | 'bow' | 'dagger' | 'spear' | 'staff';
 export type WeaponStyle = 'melee' | 'ranged';
 
@@ -9,19 +5,16 @@ export interface WeaponDef {
   id: WeaponId;
   name: string;
   description: string;
-  spriteKey: string;   // ключ текстуры в Phaser
+  spriteKey: string;
   style: WeaponStyle;
   baseDamage: number;
-  baseCooldown: number; // мс между атаками
-  baseRange: number;    // радиус (melee) или дальность (ranged)
-  // Только для ranged
+  baseCooldown: number;
+  baseRange: number;
   projectileSpeed?: number;
-  piercing?: boolean;   // пробивает ли насквозь (лук)
-  // Только для melee
-  swingArc?: number;    // угол дуги в радианах (меч 180°, топор 360°, копьё 60°)
+  piercing?: boolean;
+  swingArc?: number;
 }
 
-// Каталог всех оружий игры.
 export const WEAPON_REGISTRY: Record<WeaponId, WeaponDef> = {
   sword: {
     id: 'sword',
@@ -97,15 +90,13 @@ export const WEAPON_ORDER: WeaponId[] = ['sword', 'axe', 'dagger', 'spear', 'bow
 
 export interface WeaponState {
   def: WeaponDef;
-  level: number;        // 1–5, апгрейды внутри оружия
-  nextAttackAt: number; // elapsedMs когда можно снова бить
-  // Текущие (с учётом уровня) статы
+  level: number;
+  nextAttackAt: number;
   damage: number;
   cooldown: number;
   range: number;
 }
 
-// Создать начальное состояние оружия по id.
 export function makeWeaponState(id: WeaponId, now = 0): WeaponState {
   const def = WEAPON_REGISTRY[id];
   return {
@@ -118,7 +109,6 @@ export function makeWeaponState(id: WeaponId, now = 0): WeaponState {
   };
 }
 
-// Апгрейд оружия — увеличивает дамаг и скорость атаки.
 export function upgradeWeapon(ws: WeaponState): WeaponState {
   if (ws.level >= 5) return ws;
   return {

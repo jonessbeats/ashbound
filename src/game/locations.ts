@@ -1,36 +1,23 @@
-// ────────────────────────────────────────────────────────────────
-// locations.ts — конфиг локаций (уровней) игры.
 //
-// Каждая локация = арена с фиксированным числом волн.
-// Пережил все волны → локация пройдена → открывается следующая.
-// Это новая система прогрессии поверх MVP (исходный ТЗ §18 — одна арена).
-// ────────────────────────────────────────────────────────────────
-
 import type { EnemyKind } from './types';
 
-// Описание одной волны внутри локации.
 export interface WaveConfig {
-  count: number; // сколько врагов в волне
-  // Веса врагов в этой волне: какие виды и насколько часто.
-  // Чем больше число — тем чаще этот вид. 0 или отсутствие — вид не спавнится.
+  count: number;
   weights: Partial<Record<EnemyKind, number>>;
-  hpMultiplier: number; // множитель HP врагов в этой волне (рост сложности)
-  boss?: boolean; // true — боссовая волна: спавнится дракон + свита (count)
+  hpMultiplier: number;
+  boss?: boolean;
 }
 
-// Описание локации целиком.
 export interface LocationConfig {
-  id: string; // уникальный id (для localStorage прогресса)
-  name: string; // отображаемое название
-  description: string; // короткое описание для экрана выбора
-  floorTexture: string; // ключ текстуры пола (floor-ruins/forest/crypt)
-  decorTheme: string; // ключ спрайтшита декора (decor-catacombs/swamp/inferno)
-  decorCount: number; // сколько декор-объектов разбросать по арене
-  waves: WaveConfig[]; // список волн по порядку
+  id: string;
+  name: string;
+  description: string;
+  floorTexture: string;
+  decorTheme: string;
+  decorCount: number;
+  waves: WaveConfig[];
 }
 
-// ── Список всех локаций по порядку прохождения ──
-// Первая открыта всегда, остальные — после прохождения предыдущей.
 export const LOCATIONS: LocationConfig[] = [
   {
     id: 'ashen-ruins',
@@ -126,15 +113,12 @@ export const LOCATIONS: LocationConfig[] = [
   },
 ];
 
-// Найти локацию по id (вернёт undefined, если нет такой).
 export function getLocation(id: string): LocationConfig | undefined {
   return LOCATIONS.find((l) => l.id === id);
 }
 
-// Индекс локации по id (для определения «следующей»).
 export function getLocationIndex(id: string): number {
   return LOCATIONS.findIndex((l) => l.id === id);
 }
 
-// id первой локации — она открыта всегда.
 export const FIRST_LOCATION_ID = LOCATIONS[0].id;

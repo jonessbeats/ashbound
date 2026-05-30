@@ -1,16 +1,9 @@
 'use client';
-
-// ────────────────────────────────────────────────────────────────
-// UpgradeModal.tsx — выбор апгрейда при level up (ТЗ §27).
-// Игра на паузе, пока модалка открыта. Выбор шлётся в Phaser.
-// ────────────────────────────────────────────────────────────────
-
 import { useEffect, useState } from 'react';
 import { EventBus, GameEvents } from '@/game/EventBus';
 import type { Upgrade, UpgradeId } from '@/game/types';
 
 export default function UpgradeModal() {
-  // null = модалка скрыта; массив = показываем 3 варианта.
   const [choices, setChoices] = useState<Upgrade[] | null>(null);
 
   useEffect(() => {
@@ -23,7 +16,6 @@ export default function UpgradeModal() {
 
   if (!choices) return null;
 
-  // Игрок выбрал апгрейд — шлём в Phaser, прячем модалку.
   const pick = (id: UpgradeId) => {
     EventBus.emit(GameEvents.UPGRADE_PICKED, id);
     setChoices(null);
@@ -39,7 +31,6 @@ export default function UpgradeModal() {
           <button
             key={u.id}
             onClick={() => pick(u.id)}
-            // min-h-[44px] из ТЗ §12 — крупные кнопки под палец.
             className="min-h-[64px] rounded-lg border border-amber-500/40 bg-slate-900/90 px-4 py-3 text-left transition-colors active:bg-amber-950/60"
           >
             <div className="font-mono text-base text-amber-300">{u.title}</div>

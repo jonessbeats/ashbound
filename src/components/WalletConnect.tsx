@@ -1,11 +1,4 @@
 'use client';
-
-// ────────────────────────────────────────────────────────────────
-// WalletConnect.tsx — подключение кошелька.
-// Показывает только релевантные для Base кошельки: Coinbase, MetaMask,
-// Rabby + общий Injected. Каждый со своим фирменным цветом.
-// ────────────────────────────────────────────────────────────────
-
 import { useState } from 'react';
 import { useAccount, useConnect, useDisconnect } from 'wagmi';
 import type { Connector } from 'wagmi';
@@ -14,11 +7,10 @@ function shortAddress(addr: string): string {
   return `${addr.slice(0, 6)}…${addr.slice(-4)}`;
 }
 
-// Фирменные стили кнопок по кошельку. Ключ — нижний регистр имени.
 interface WalletStyle {
   label: string;
   className: string;
-  priority: number; // порядок в списке
+  priority: number;
 }
 
 const WALLET_STYLES: Record<string, WalletStyle> = {
@@ -39,8 +31,6 @@ const WALLET_STYLES: Record<string, WalletStyle> = {
   },
 };
 
-// Имена коннекторов, которые показываем (остальные инжектед прячем).
-// 'injected' ловит дефолтный browser-кошелёк под общим именем.
 function classify(name: string): { key: string; style: WalletStyle } | null {
   const n = name.trim().toLowerCase();
   if (n.includes('coinbase')) return { key: 'coinbase wallet', style: WALLET_STYLES['coinbase wallet'] };
@@ -56,7 +46,6 @@ export default function WalletConnect({ className = '' }: { className?: string }
 
   const [pickerOpen, setPickerOpen] = useState(false);
 
-  // Отбираем только Coinbase / MetaMask / Rabby + один общий Injected.
   const seen = new Set<string>();
   const named: { connector: Connector; style: WalletStyle }[] = [];
   let injectedFallback: Connector | null = null;
@@ -74,7 +63,6 @@ export default function WalletConnect({ className = '' }: { className?: string }
 
   named.sort((a, b) => a.style.priority - b.style.priority);
 
-  // ── Подключён ──
   if (isConnected && address) {
     return (
       <button
@@ -135,7 +123,7 @@ export default function WalletConnect({ className = '' }: { className?: string }
                 </button>
               ))}
 
-              {/* Общий fallback для прочих браузерных кошельков */}
+              
               {injectedFallback && (
                 <button
                   onClick={() => {

@@ -1,14 +1,5 @@
-// ────────────────────────────────────────────────────────────────
-// mintRunBadge.ts — хук для минта SBT-бейджа за пройденную локацию.
 //
-// Новый контракт SBT: принимает только locationId (uint8).
-// Score/kills/level на блокчейне НЕ хранятся — они показываются
-// только в GameOverModal (локально). Это сделано специально:
-//   мы не легитимизируем фейковые цифры от обманного фронта.
 //
-// Если кошелёк на другой сети — хук попросит переключиться.
-// ────────────────────────────────────────────────────────────────
-
 'use client';
 
 import { useCallback, useEffect, useRef } from 'react';
@@ -33,7 +24,6 @@ export interface MintState {
   error: string | null;
   txHash: `0x${string}` | undefined;
   wrongNetwork: boolean;
-  /** Уже минтил этот бейдж — кнопка минта должна быть disabled. */
   alreadyMinted: boolean;
 }
 
@@ -56,8 +46,6 @@ export function useMintRunBadge(locationId: number | null): MintState {
 
   const wrongNetwork = chainId !== activeChain.id;
 
-  // Проверяем onchain: уже минтил ли этот игрок за эту локацию.
-  // Запрос идёт только если есть address и валидный locationId.
   const { data: alreadyMintedData } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: ASHBOUND_ABI,
@@ -70,7 +58,6 @@ export function useMintRunBadge(locationId: number | null): MintState {
   });
   const alreadyMinted = Boolean(alreadyMintedData);
 
-  // Запоминаем locationId между switchChain и реальным минтом.
   const pendingLocation = useRef<number | null>(null);
 
   const sendMint = useCallback(
@@ -100,7 +87,6 @@ export function useMintRunBadge(locationId: number | null): MintState {
     [address, wrongNetwork, switchChain, sendMint],
   );
 
-  // Когда сеть переключилась и есть отложенный минт — отправляем.
   useEffect(() => {
     if (!wrongNetwork && pendingLocation.current !== null) {
       const loc = pendingLocation.current;
@@ -115,7 +101,6 @@ export function useMintRunBadge(locationId: number | null): MintState {
   }, [resetWrite]);
 
   const anyError = switchError || writeError;
-  // Нормализуем ошибки контракта в человекочитаемый текст.
   let errorMessage: string | null = null;
   if (anyError) {
     const raw = anyError.message;

@@ -1,17 +1,10 @@
 'use client';
-
-// ────────────────────────────────────────────────────────────────
-// page.tsx — корневая страница. Три экрана:
 // menu → location select → game.
-// GameContainer грузится динамически без SSR (Phaser требует window).
-// ────────────────────────────────────────────────────────────────
-
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import MainMenu from '@/components/MainMenu';
 import LocationSelect from '@/components/LocationSelect';
 
-// Phaser работает только в браузере — отключаем серверный рендер.
 const GameContainer = dynamic(() => import('@/components/GameContainer'), {
   ssr: false,
   loading: () => (
@@ -26,8 +19,6 @@ type Screen = 'menu' | 'select' | 'game';
 export default function Page() {
   const [screen, setScreen] = useState<Screen>('menu');
   const [locationId, setLocationId] = useState<string | null>(null);
-  // Инкрементируется при каждом старте — гарантирует полный remount GameContainer
-  // даже если выбрана та же локация что в прошлый раз.
   const [gameKey, setGameKey] = useState(0);
 
   return (

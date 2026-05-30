@@ -1,41 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-// ─────────────────────────────────────────────────────────────────
-// AshboundCheckIn — бесплатный ежедневный on-chain чек-ин.
-// ─────────────────────────────────────────────────────────────────
-//
-// Дизайн-решения:
-//
-//   1) Один чек-ин на адрес в UTC-сутки. День считается как
-//      block.timestamp / 1 days. Повторный чек-ин в те же сутки revert'ится.
-//
-//   2) Streak (серия): если игрок чекинился вчера — streak++.
-//      Если пропустил день (или больше) — streak сбрасывается в 1.
-//
-//   3) Хранится: последний день чек-ина, текущий streak, лучший streak,
-//      общее число чек-инов. Всё per-address.
-//
-//   4) Бесплатно: функция не payable, платится только газ (на Base — копейки).
-//      Никаких ограничений owner'а на сам чек-ин: контракт нельзя
-//      поставить на паузу, чтобы пользователи всегда могли отметиться.
-//
-//   5) Никаких токенов/наград в контракте — это чистый трекер активности.
-//      Награды (если будут) можно начислять off-chain по данным из событий.
-//
-// ─────────────────────────────────────────────────────────────────
-
+/// @title AshboundCheckIn
+/// @notice Free daily on-chain check-in with streak tracking. One check-in per
+///         UTC day per address. Tracks current streak, best streak, and total
+///         check-ins. No token, no payable, no owner controls — purely an
+///         activity tracker that anyone can always use.
 contract AshboundCheckIn {
     struct Record {
-        uint64 lastDay;     // номер последнего дня чек-ина (timestamp / 1 days)
-        uint32 streak;      // текущая серия подряд
-        uint32 bestStreak;  // лучшая серия за всё время
-        uint32 total;       // всего чек-инов
+        uint64 lastDay;
+        uint32 streak;
+        uint32 bestStreak;
+        uint32 total;
     }
 
     mapping(address => Record) private records;
 
-    // Глобальный счётчик — сколько всего чек-инов сделано (для статистики).
     uint256 public totalCheckIns;
 
     event CheckIn(
@@ -45,23 +25,24 @@ contract AshboundCheckIn {
         uint32 total
     );
 
-    // Текущий UTC-день.
+    /// @notice Current UTC day (timestamp / 1 day).
     function currentDay() public view returns (uint64) {
         return uint64(block.timestamp / 1 days);
     }
 
-    // Отметиться за сегодня. Revert если уже отмечался сегодня.
+    /// @notice Check in for today. Reverts if already checked in this UTC day.
+    ///         Streak increments if yesterday was the last check-in, otherwise
+    ///         resets to 1.
     function checkIn() external {
         uint64 today = uint64(block.timestamp / 1 days);
         Record storage r = records[msg.sender];
 
         require(r.lastDay < today, "Already checked in today");
 
-        // Streak: вчера = today-1. Если последний чек-ин был вчера — серия растёт.
         if (r.lastDay == today - 1) {
             r.streak += 1;
         } else {
-            r.streak = 1; // пропустил день (или первый чек-ин) — серия с нуля
+            r.streak = 1;
         }
 
         if (r.streak > r.bestStreak) {
@@ -75,12 +56,14 @@ contract AshboundCheckIn {
         emit CheckIn(msg.sender, today, r.streak, r.total);
     }
 
-    // Может ли адрес чекиниться прямо сейчас (ещё не отмечался сегодня).
+    /// @notice True if the address has not checked in yet today.
     function canCheckIn(address user) external view returns (bool) {
         return records[user].lastDay < uint64(block.timestamp / 1 days);
     }
 
-    // Полные данные игрока.
+    /// @notice Full record for a player. The returned streak reads as 0 if the
+    ///         streak is broken (last check-in earlier than yesterday); storage
+    ///         is corrected on the next checkIn call.
     function getRecord(address user)
         external
         view
@@ -93,9 +76,6 @@ contract AshboundCheckIn {
     {
         Record storage r = records[user];
 
-        // Если серия прервана (последний чек-ин раньше чем вчера) —
-        // показываем что текущий streak фактически 0 (хотя в storage старое
-        // значение; оно перезапишется при следующем checkIn).
         uint64 today = uint64(block.timestamp / 1 days);
         uint32 liveStreak = r.streak;
         if (r.lastDay < today - 1 && r.lastDay != 0) {

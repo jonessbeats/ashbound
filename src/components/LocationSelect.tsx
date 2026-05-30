@@ -1,24 +1,16 @@
 'use client';
-
-// ────────────────────────────────────────────────────────────────
-// LocationSelect.tsx — экран выбора локации.
-// Между главным меню и игрой. Показывает список локаций:
-// пройденные (✓), открытая (играбельна), закрытые (🔒).
-// ────────────────────────────────────────────────────────────────
-
 import { useEffect, useState } from 'react';
 import { LOCATIONS } from '@/game/locations';
 import { loadProgress, isLocationUnlocked } from '@/web3/localProgress';
 
 interface Props {
-  onPick: (locationId: string) => void; // выбрана локация — запускаем игру
-  onBack: () => void; // назад в главное меню
+  onPick: (locationId: string) => void;
+  onBack: () => void;
 }
 
 export default function LocationSelect({ onPick, onBack }: Props) {
   const [cleared, setCleared] = useState<string[]>([]);
 
-  // localStorage доступен только на клиенте — читаем после монтирования.
   useEffect(() => {
     setCleared(loadProgress().clearedLocations);
   }, []);
@@ -30,7 +22,7 @@ export default function LocationSelect({ onPick, onBack }: Props) {
       </h1>
       <p className="mb-6 text-sm text-slate-500">Clear a location to unlock the next</p>
 
-      {/* Список локаций */}
+      
       <div className="flex w-full max-w-sm flex-col gap-3">
         {LOCATIONS.map((loc) => {
           const unlocked = isLocationUnlocked(loc.id, cleared);

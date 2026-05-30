@@ -1,10 +1,4 @@
 'use client';
-
-// ────────────────────────────────────────────────────────────────
-// GameContainer.tsx — монтирует Phaser и накладывает React-UI поверх.
-// Получает locationId — какую локацию запускать (через EventBus в сцену).
-// ────────────────────────────────────────────────────────────────
-
 import { useEffect, useRef } from 'react';
 import type * as Phaser from 'phaser';
 import { createGame } from '@/game/phaserGame';
@@ -17,8 +11,8 @@ import GameOverModal from './GameOverModal';
 import WaveBanner from './WaveBanner';
 
 interface Props {
-  locationId: string; // какую локацию играть
-  onExit: () => void; // выход к экрану выбора локаций
+  locationId: string;
+  onExit: () => void;
 }
 
 export default function GameContainer({ locationId, onExit }: Props) {
@@ -28,8 +22,6 @@ export default function GameContainer({ locationId, onExit }: Props) {
   useEffect(() => {
     if (!hostRef.current || gameRef.current) return;
 
-    // Навешиваем listener ДО создания игры — иначе SCENE_READY может
-    // эмититься раньше чем мы успеваем подписаться.
     const onReady = () => {
       EventBus.emit(GameEvents.START_LOCATION, locationId);
     };
@@ -46,10 +38,10 @@ export default function GameContainer({ locationId, onExit }: Props) {
 
   return (
     <div className="relative h-[100dvh] w-full overflow-hidden bg-[#0a0c14]">
-      {/* Слой Phaser-canvas */}
+      
       <div ref={hostRef} className="absolute inset-0" />
 
-      {/* Слои React-UI поверх игры */}
+      
       <HUD onExit={onExit} />
       <WaveBanner />
       <Joystick />

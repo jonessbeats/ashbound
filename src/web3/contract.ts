@@ -1,10 +1,4 @@
-// ────────────────────────────────────────────────────────────────
-// contract.ts — ABI контракта AshboundRunBadge (SBT v2).
 //
-// Контракт — soulbound: 1 минт на адрес на локацию, transfer запрещён.
-// На фронте нам нужны только функции для минта и читалок состояния.
-// ────────────────────────────────────────────────────────────────
-
 export { CONTRACT_ADDRESS } from './chains';
 
 export const ASHBOUND_ABI = [
@@ -70,7 +64,6 @@ export const ASHBOUND_ABI = [
     ],
   },
 
-  // ── Errors (для нормальных сообщений фронта) ────────────────
   { type: 'error', name: 'InvalidLocation', inputs: [] },
   { type: 'error', name: 'AlreadyMintedForLocation', inputs: [] },
   { type: 'error', name: 'SoulboundNonTransferable', inputs: [] },

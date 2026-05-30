@@ -24,42 +24,42 @@ async function main() {
   const balance = await ethers.provider.getBalance(deployer.address);
 
   console.log('');
-  console.log('────────────────────────────────────────────────────────');
-  console.log('СЕТЬ:     ' + network.name + (isMainnet ? '  ⚠ MAINNET' : ''));
-  console.log('ДЕПЛОЕР:  ' + deployer.address);
-  console.log('БАЛАНС:   ' + ethers.formatEther(balance) + ' ETH');
+  console.log('--------------------------------------------------------');
+  console.log('Network:  ' + network.name + (isMainnet ? '  MAINNET' : ''));
+  console.log('Deployer: ' + deployer.address);
+  console.log('Balance:  ' + ethers.formatEther(balance) + ' ETH');
   console.log('imageBaseURI:  ' + IMAGE_BASE_URI);
   console.log('locationNames: ' + JSON.stringify(LOCATION_NAMES));
-  console.log('────────────────────────────────────────────────────────');
+  console.log('--------------------------------------------------------');
   console.log('');
 
   if (balance < ethers.parseEther('0.001')) {
-    console.error('Недостаточно ETH. Нужно минимум ~0.001 ETH.');
+    console.error('Insufficient ETH. Need at least ~0.001 ETH.');
     process.exit(1);
   }
 
   if (isMainnet && process.env.CONFIRM_DEPLOY !== 'yes') {
-    console.error('Деплой на MAINNET требует: CONFIRM_DEPLOY=yes npm run contracts:deploy:mainnet');
+    console.error('Mainnet deploy requires: CONFIRM_DEPLOY=yes npm run contracts:deploy:mainnet');
     process.exit(1);
   }
 
-  console.log('Деплою...');
+  console.log('Deploying...');
   const Factory = await ethers.getContractFactory('AshboundRunBadge');
   const contract = await Factory.deploy(IMAGE_BASE_URI, LOCATION_NAMES);
   await contract.waitForDeployment();
   const address = await contract.getAddress();
 
   console.log('');
-  console.log('✓ Задеплоен: ' + address);
+  console.log('Deployed: ' + address);
   console.log('');
-  console.log('Обнови в .env.local:');
+  console.log('Set in .env.local:');
   console.log('  NEXT_PUBLIC_CONTRACT_ADDRESS=' + address);
   if (isMainnet) console.log('  NEXT_PUBLIC_CHAIN_ID=8453');
   console.log('');
-  console.log('Обнови в Vercel → Settings → Environment Variables → те же строки.');
+  console.log('Set the same vars in Vercel -> Settings -> Environment Variables.');
   console.log('');
   const netFlag = isMainnet ? '--network base' : '--network baseSepolia';
-  console.log('Верификация:');
+  console.log('Verify:');
   console.log('  npx hardhat verify ' + netFlag + ' ' + address + ' "' + IMAGE_BASE_URI + '" \'[' + LOCATION_NAMES.map(n => '"' + n + '"').join(',') + ']\'');
 }
 

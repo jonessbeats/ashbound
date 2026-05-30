@@ -1,9 +1,3 @@
-// ────────────────────────────────────────────────────────────────
-// BootScene.ts — генерирует placeholder-текстуры кодом (ТЗ §46).
-// Никаких внешних ассетов — игра запускается сразу.
-// Позже эти текстуры заменяются на настоящий pixel-art.
-// ────────────────────────────────────────────────────────────────
-
 import * as Phaser from 'phaser';
 
 export default class BootScene extends Phaser.Scene {
@@ -11,9 +5,7 @@ export default class BootScene extends Phaser.Scene {
     super('BootScene');
   }
 
-  // preload — грузим внешние ассеты ДО create.
   preload(): void {
-    // Спрайтшиты игрока (кадр 64×44). Собраны из пака Warrior by Clembod.
     this.load.spritesheet('player-idle', '/assets/sprites/player_idle.png', {
       frameWidth: 64,
       frameHeight: 44,
@@ -23,10 +15,6 @@ export default class BootScene extends Phaser.Scene {
       frameHeight: 44,
     });
 
-    // Спрайтшиты врагов (кадр 16×16, по 4 кадра ходьбы).
-    // Спрайтшиты врагов из Debts in the Depths by Reaktori (CC0).
-    // У каждого свой размер кадра и число кадров.
-    // (slime теперь из Creature Pack — 16×16)
     this.load.spritesheet('enemy-slime', '/assets/sprites/enemy_slime.png', {
       frameWidth: 16,
       frameHeight: 16,
@@ -44,13 +32,11 @@ export default class BootScene extends Phaser.Scene {
       frameHeight: 24,
     });
 
-    // Босс — дракон (кадр 70×73, 6 кадров). Debts in the Depths (CC0).
     this.load.spritesheet('boss-dragon', '/assets/sprites/boss_dragon.png', {
       frameWidth: 70,
       frameHeight: 73,
     });
 
-    // Огонь дракона: снаряд (4 кадра 15×5) и взрыв при попадании (4 кадра 13×13).
     this.load.spritesheet('boss-fire', '/assets/sprites/boss_fire.png', {
       frameWidth: 15,
       frameHeight: 5,
@@ -60,7 +46,6 @@ export default class BootScene extends Phaser.Scene {
       frameHeight: 13,
     });
 
-    // Фаербол: полёт (4 кадра) и взрыв при попадании (4 кадра).
     this.load.spritesheet('firebolt', '/assets/sprites/firebolt.png', {
       frameWidth: 16,
       frameHeight: 16,
@@ -70,16 +55,12 @@ export default class BootScene extends Phaser.Scene {
       frameHeight: 16,
     });
 
-    // Тайлы пола локаций (48×48, бесшовные). Из Kenney Tiny Dungeon (CC0).
     this.load.image('floor-ruins', '/assets/tiles/floor_ruins.png');
     this.load.image('floor-forest', '/assets/tiles/floor_forest.png');
     this.load.image('floor-crypt', '/assets/tiles/floor_crypt.png');
-    // Новые локации — Tiny RPG Forest & Mountain by Ansimuz (CC0).
     this.load.image('floor-enchanted', '/assets/tiles/floor_enchanted.png');
     this.load.image('floor-mountain', '/assets/tiles/floor_mountain.png');
 
-    // Декор локаций (объекты-спрайтшиты). Из Debts in the Depths by Reaktori (CC0).
-    // После расширения у всех тем единая ячейка 18×19.
     this.load.spritesheet('decor-catacombs', '/assets/tiles/decor_catacombs.png', {
       frameWidth: 18,
       frameHeight: 19,
@@ -92,14 +73,11 @@ export default class BootScene extends Phaser.Scene {
       frameWidth: 18,
       frameHeight: 19,
     });
-    // Декор леса — Tiny RPG Forest by Ansimuz (CC0). 8 объектов, кадр 64×64.
     this.load.spritesheet('decor-forest', '/assets/tiles/decor_forest.png', {
       frameWidth: 64,
       frameHeight: 64,
     });
 
-    // Новые враги — Tiny RPG Forest by Ansimuz (CC0).
-    // Treant: 4 кадра 31×35. Mole: 4 кадра 24×24.
     this.load.spritesheet('enemy-treant', '/assets/sprites/enemy_treant.png', {
       frameWidth: 31,
       frameHeight: 35,
@@ -109,7 +87,6 @@ export default class BootScene extends Phaser.Scene {
       frameHeight: 24,
     });
     // 2D Pixel Dungeon Asset Pack by Pixel_Poem (commercial OK).
-    // Skeleton2 (тяжёлый): 8 кадров 32×32. Vampire: 8 кадров 32×32.
     this.load.spritesheet('enemy-skeleton2', '/assets/sprites/enemy_skeleton2.png', {
       frameWidth: 32,
       frameHeight: 32,
@@ -120,7 +97,6 @@ export default class BootScene extends Phaser.Scene {
     });
 
     // Creature Free Pack by Electric Lemon Games (commercial OK).
-    // Все 4 кадра 16×16 (walk-down).
     this.load.spritesheet('enemy-goblin', '/assets/sprites/enemy_goblin.png', {
       frameWidth: 16, frameHeight: 16,
     });
@@ -137,7 +113,6 @@ export default class BootScene extends Phaser.Scene {
       frameWidth: 16, frameHeight: 16,
     });
 
-    // Предметы — 2D Pixel Dungeon Asset Pack by Pixel_Poem (commercial OK).
     this.load.spritesheet('torch', '/assets/sprites/torch.png', {
       frameWidth: 16,
       frameHeight: 16,
@@ -155,8 +130,6 @@ export default class BootScene extends Phaser.Scene {
       frameHeight: 16,
     });
 
-    // XP-монеты и гемы — Tiny RPG Forest by Ansimuz (CC0).
-    // coin: 4 кадра 5×7. gem: 4 кадра 7×7.
     this.load.spritesheet('xp-coin', '/assets/sprites/xp_coin.png', {
       frameWidth: 5,
       frameHeight: 7,
@@ -166,7 +139,6 @@ export default class BootScene extends Phaser.Scene {
       frameHeight: 7,
     });
 
-    // Оружия — Weapons Pack (free, commercial OK). 16×16.
     this.load.image('weapon-sword',  '/assets/sprites/weapon_1.png');
     this.load.image('weapon-axe',    '/assets/sprites/weapon_6.png');
     this.load.image('weapon-bow',    '/assets/sprites/weapon_11.png');
@@ -174,25 +146,18 @@ export default class BootScene extends Phaser.Scene {
     this.load.image('weapon-spear',  '/assets/sprites/weapon_53.png');
     this.load.image('weapon-staff',  '/assets/sprites/weapon_57.png');
 
-    // Стрела для лука (отдельный спрайт-снаряд).
     this.load.image('arrow', '/assets/sprites/arrow.png');
   }
 
   create(): void {
-    // Игрок теперь — настоящий спрайт. Placeholder 'tex-player' больше не нужен,
-    // но оставим анимации для него.
     this.createPlayerAnims();
 
-    // Враги — настоящие спрайты с анимацией ходьбы.
     this.createEnemyAnims();
 
-    // Фаербол — анимированный снаряд (полёт + взрыв).
     this.createFireboltAnims();
 
-    // XP-орб — голубой кристалл (fallback, больше не используется как основной).
     this.makeDiamond('tex-xp', 10, 0x57c7e8, 0x123a44);
 
-    // XP монеты и гемы — анимированные спрайты из Tiny RPG Forest (CC0).
     this.anims.create({
       key: 'xp-coin-spin',
       frames: this.anims.generateFrameNumbers('xp-coin', { start: 0, end: 3 }),
@@ -206,24 +171,16 @@ export default class BootScene extends Phaser.Scene {
       repeat: -1,
     });
 
-    // Тайлы пола — загружены из файлов (floor-ruins/forest/crypt).
-
-    // Всё готово — запускаем игровую сцену.
     this.scene.start('GameScene');
   }
 
-  // ── Хелперы рисования. Каждый создаёт текстуру через Graphics. ──
-
-  // Создать анимации игрока из загруженных спрайтшитов.
   private createPlayerAnims(): void {
-    // idle — стоит на месте, 6 кадров, плавный цикл.
     this.anims.create({
       key: 'player-idle',
       frames: this.anims.generateFrameNumbers('player-idle', { start: 0, end: 5 }),
       frameRate: 8,
-      repeat: -1, // зациклить
+      repeat: -1,
     });
-    // run — бежит, 8 кадров, быстрее.
     this.anims.create({
       key: 'player-run',
       frames: this.anims.generateFrameNumbers('player-run', { start: 0, end: 7 }),
@@ -232,24 +189,21 @@ export default class BootScene extends Phaser.Scene {
     });
   }
 
-  // Создать анимации фаербола: полёт (циклично) и взрыв (один проход).
   private createFireboltAnims(): void {
     this.anims.create({
       key: 'firebolt-fly',
       frames: this.anims.generateFrameNumbers('firebolt', { start: 0, end: 3 }),
       frameRate: 16,
-      repeat: -1, // мерцает всё время полёта
+      repeat: -1,
     });
     this.anims.create({
       key: 'firebolt-hit',
       frames: this.anims.generateFrameNumbers('firebolt-hit', { start: 0, end: 3 }),
       frameRate: 22,
-      repeat: 0, // взрыв проигрывается один раз
+      repeat: 0,
     });
   }
 
-  // Создать анимации ходьбы для всех врагов.
-  // У каждого своё число кадров (slime — 6, остальные — 4).
   private createEnemyAnims(): void {
     const kinds: Record<string, number> = {
       slime: 4,
@@ -275,14 +229,12 @@ export default class BootScene extends Phaser.Scene {
       });
     }
 
-    // Факел — анимированный (4 кадра, циклично).
     this.anims.create({
       key: 'torch-burn',
       frames: this.anims.generateFrameNumbers('torch', { start: 0, end: 3 }),
       frameRate: 8,
       repeat: -1,
     });
-    // Сундук закрытый (idle) и открытый (один раз при подборе).
     this.anims.create({
       key: 'chest-idle',
       frames: this.anims.generateFrameNumbers('chest-closed', { start: 0, end: 3 }),
@@ -295,21 +247,18 @@ export default class BootScene extends Phaser.Scene {
       frameRate: 10,
       repeat: 0,
     });
-    // Колба — мерцает (4 кадра, циклично).
     this.anims.create({
       key: 'flask-glow',
       frames: this.anims.generateFrameNumbers('flask', { start: 0, end: 3 }),
       frameRate: 6,
       repeat: -1,
     });
-    // Анимация босса-дракона (6 кадров взмаха крыльев).
     this.anims.create({
       key: 'boss-dragon-fly',
       frames: this.anims.generateFrameNumbers('boss-dragon', { start: 0, end: 5 }),
       frameRate: 8,
       repeat: -1,
     });
-    // Огонь дракона — снаряд (циклично) и взрыв при попадании (один проход).
     this.anims.create({
       key: 'boss-fire-fly',
       frames: this.anims.generateFrameNumbers('boss-fire', { start: 0, end: 3 }),

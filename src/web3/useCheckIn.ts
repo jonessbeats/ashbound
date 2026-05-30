@@ -1,10 +1,4 @@
-// ────────────────────────────────────────────────────────────────
-// useCheckIn.ts — хук ежедневного on-chain чек-ина.
 //
-// Бесплатно (только газ). Один чек-ин в UTC-сутки. Считает streak.
-// Если кошелёк на другой сети — попросит переключиться.
-// ────────────────────────────────────────────────────────────────
-
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -29,15 +23,10 @@ export interface CheckInState {
   error: string | null;
   txHash: `0x${string}` | undefined;
   wrongNetwork: boolean;
-  /** Можно ли чекиниться сегодня (ещё не отмечался). */
   canCheckIn: boolean;
-  /** Текущая серия подряд. */
   streak: number;
-  /** Лучшая серия за всё время. */
   bestStreak: number;
-  /** Всего чек-инов. */
   total: number;
-  /** Идёт загрузка данных игрока. */
   isLoadingRecord: boolean;
 }
 
@@ -60,7 +49,6 @@ export function useCheckIn(): CheckInState {
 
   const wrongNetwork = chainId !== activeChain.id;
 
-  // Данные игрока: streak / bestStreak / total.
   const {
     data: recordData,
     isLoading: isLoadingRecord,
@@ -73,7 +61,6 @@ export function useCheckIn(): CheckInState {
     query: { enabled: !!address && !wrongNetwork },
   });
 
-  // Можно ли чекиниться сегодня.
   const { data: canData, refetch: refetchCan } = useReadContract({
     address: CHECKIN_ADDRESS,
     abi: CHECKIN_ABI,
@@ -86,13 +73,9 @@ export function useCheckIn(): CheckInState {
   const bestStreak = recordData ? Number(recordData[2]) : 0;
   const total = recordData ? Number(recordData[3]) : 0;
 
-  // Оптимистичная блокировка: после успешной транзы RPC-нода ещё пару секунд
-  // отдаёт старое значение canCheckIn=true. Чтобы юзер не нажал второй раз
-  // (и не получил revert "already checked in"), блокируем локально сразу.
   const [checkedThisSession, setCheckedThisSession] = useState(false);
   const canCheckIn = Boolean(canData) && !checkedThisSession;
 
-  // После успешного чек-ина — перечитываем данные и ставим локальный флаг.
   useEffect(() => {
     if (isSuccess) {
       setCheckedThisSession(true);
@@ -115,9 +98,7 @@ export function useCheckIn(): CheckInState {
 
   const doCheckIn = useCallback(() => {
     if (!address) return;
-    // Защита от двойного клика: транза в полёте или уже отметился.
     if (isPending || isConfirming || checkedThisSession) return;
-    // Сбрасываем прошлую ошибку перед новой попыткой.
     resetWrite();
     if (wrongNetwork) {
       pending.current = true;
@@ -127,7 +108,6 @@ export function useCheckIn(): CheckInState {
     }
   }, [address, isPending, isConfirming, checkedThisSession, wrongNetwork, switchChain, sendCheckIn, resetWrite]);
 
-  // После переключения сети — досылаем отложенный чек-ин.
   useEffect(() => {
     if (!wrongNetwork && pending.current) {
       pending.current = false;
