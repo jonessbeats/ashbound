@@ -1,4 +1,3 @@
-//
 import type { EnemyKind } from './types';
 
 export interface WaveConfig {

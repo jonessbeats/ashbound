@@ -1,4 +1,3 @@
-//
 // Sepolia:  npx hardhat run scripts/deploy-checkin.ts --network baseSepolia
 // Mainnet:  $env:CONFIRM_DEPLOY="yes"; npx hardhat run scripts/deploy-checkin.ts --network base
 const hre = require('hardhat');

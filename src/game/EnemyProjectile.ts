@@ -1,4 +1,3 @@
-//
 import * as Phaser from 'phaser';
 
 const FRAME = { w: 15, h: 5 };

@@ -1,4 +1,3 @@
-//
 export { CONTRACT_ADDRESS } from './chains';
 
 export const ASHBOUND_ABI = [
