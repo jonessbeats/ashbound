@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import Providers from '@/components/Providers';
-import DebugOverlay from '@/components/DebugOverlay';
 
 export const metadata: Metadata = {
   title: 'Ashbound: Base Survivors',
@@ -25,7 +24,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className="bg-[#0a0c14] text-slate-100 antialiased">
         <Providers>{children}</Providers>
-        <DebugOverlay />
       </body>
     </html>
   );

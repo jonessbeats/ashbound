@@ -49,7 +49,6 @@ export default class WeaponManager {
     this.player = player;
     this.slots.forEach((ws) => { ws.nextAttackAt = 0; });
     this.rebuildIcons();
-    console.log('[WM] setPlayer at', player.x, player.y, 'slots:', this.slots.length, 'icons:', this.icons.length);
   }
 
   public addWeapon(id: WeaponId): boolean {
