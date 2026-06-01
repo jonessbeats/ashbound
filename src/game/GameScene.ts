@@ -59,7 +59,12 @@ export default class GameScene extends Phaser.Scene {
     this.physics.world.setBounds(0, 0, ARENA.width, ARENA.height);
     this.cameras.main.setBounds(0, 0, ARENA.width, ARENA.height);
     this.cameras.main.setBackgroundColor('#0a0c14');
-    this.cameras.main.setZoom(1.25);
+    // Adaptive zoom: phones get a wider view (more breathing room),
+    // desktop keeps the tighter, more detailed framing.
+    const isMobile =
+      typeof window !== 'undefined' &&
+      (window.matchMedia('(pointer: coarse)').matches || window.innerWidth < 820);
+    this.cameras.main.setZoom(isMobile ? 1.25 : 1.7);
 
     this.enemies = this.physics.add.group({ runChildUpdate: false });
     this.projectiles = this.physics.add.group();
@@ -180,8 +185,21 @@ export default class GameScene extends Phaser.Scene {
     this.vacuuming = false;
     this.finished = false;
     this.running = true;
+    // Destroy any leftover chest sprite from a previous run before resetting.
+    if (this.chest) {
+      (this.chest as Phaser.GameObjects.Sprite).destroy();
+    }
     this.chest = null;
     this.chestOpen = false;
+    // Safety net: kill any orphaned chest sprites whose reference was lost
+    // (e.g. died on a wave without picking the chest, then restarted).
+    this.children.list
+      .filter(
+        (o): o is Phaser.GameObjects.Sprite =>
+          o instanceof Phaser.GameObjects.Sprite &&
+          (o.texture?.key === 'chest-closed'),
+      )
+      .forEach((o) => o.destroy());
     this.flasks.clear(true, true);
     resetUpgradeCounts();
     this.physics.resume();
