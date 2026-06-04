@@ -13,7 +13,7 @@ import {
 export const MAX_WEAPON_SLOTS = 4;
 
 const SLOT_ANGLES = [Math.PI * 0.25, Math.PI * 0.75, Math.PI * 1.25, Math.PI * 1.75];
-const ICON_ORBIT = 24;
+const ICON_ORBIT = 30;
 const ICON_SCALE = 1.0;
 
 function isAlive(s: { active?: boolean; body?: unknown; x?: unknown; y?: unknown } | null | undefined): boolean {

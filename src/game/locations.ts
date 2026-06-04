@@ -23,8 +23,8 @@ export const LOCATIONS: LocationConfig[] = [
     name: 'Ashen Ruins',
     description: 'Where the first ash fell. Five waves to survive.',
     floorTexture: 'floor-ruins',
-    decorTheme: 'decor-catacombs',
-    decorCount: 14,
+    decorTheme: 'decor-ashen',
+    decorCount: 10,
     waves: [
       { count: 6, weights: { slime: 5 }, hpMultiplier: 1.0 },
       { count: 9, weights: { slime: 4, goblin: 3 }, hpMultiplier: 1.1 },

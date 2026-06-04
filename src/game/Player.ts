@@ -10,19 +10,21 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
   public alive = true;
 
   private invulnUntil = 0;
+  private facing: 'down' | 'up' | 'left' | 'right' = 'down';
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
-    super(scene, x, y, 'player-idle', 0);
+    super(scene, x, y, 'player-idle-down', 0);
     scene.add.existing(this);
     scene.physics.add.existing(this);
 
     this.setCollideWorldBounds(true);
     this.setDepth(10);
+    this.setScale(1.2);
 
-    (this.body as Phaser.Physics.Arcade.Body).setSize(20, 22);
-    (this.body as Phaser.Physics.Arcade.Body).setOffset(22, 18);
+    (this.body as Phaser.Physics.Arcade.Body).setSize(22, 28);
+    (this.body as Phaser.Physics.Arcade.Body).setOffset(21, 34);
 
-    this.play('player-idle');
+    this.play('player-idle-down');
 
     this.stats = {
       maxHp: PLAYER_CONFIG.hp,
@@ -40,13 +42,25 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
   public updateAnimation(vx: number, vy: number): void {
     const moving = Math.abs(vx) > 1 || Math.abs(vy) > 1;
+    this.setFlipX(false);
 
-    if (vx < -1) this.setFlipX(true);
-    else if (vx > 1) this.setFlipX(false);
-
-    const want = moving ? 'player-run' : 'player-idle';
-    if (this.anims.currentAnim?.key !== want) {
-      this.play(want, true);
+    if (moving) {
+      // Pick direction by the dominant axis of movement.
+      if (Math.abs(vx) >= Math.abs(vy)) {
+        this.facing = vx >= 0 ? 'right' : 'left';
+      } else {
+        this.facing = vy >= 0 ? 'down' : 'up';
+      }
+      const want = 'player-run-' + this.facing;
+      if (this.anims.currentAnim?.key !== want) {
+        this.play(want, true);
+      }
+    } else {
+      // Idle in the last-faced direction.
+      const want = 'player-idle-' + this.facing;
+      if (this.anims.currentAnim?.key !== want) {
+        this.play(want, true);
+      }
     }
   }
 

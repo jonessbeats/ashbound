@@ -6,13 +6,33 @@ export default class BootScene extends Phaser.Scene {
   }
 
   preload(): void {
-    this.load.spritesheet('player-idle', '/assets/sprites/player_idle.png', {
-      frameWidth: 64,
-      frameHeight: 44,
+    this.load.spritesheet('player-idle-down', '/assets/sprites/player_idle_down.png', {
+      frameWidth: 64, frameHeight: 64,
     });
-    this.load.spritesheet('player-run', '/assets/sprites/player_run.png', {
+    this.load.spritesheet('player-idle-up', '/assets/sprites/player_idle_up.png', {
+      frameWidth: 64, frameHeight: 64,
+    });
+    this.load.spritesheet('player-idle-right', '/assets/sprites/player_idle_right.png', {
+      frameWidth: 64, frameHeight: 64,
+    });
+    this.load.spritesheet('player-idle-left', '/assets/sprites/player_idle_left.png', {
+      frameWidth: 64, frameHeight: 64,
+    });
+    this.load.spritesheet('player-run-down', '/assets/sprites/player_run_down.png', {
       frameWidth: 64,
-      frameHeight: 44,
+      frameHeight: 64,
+    });
+    this.load.spritesheet('player-run-up', '/assets/sprites/player_run_up.png', {
+      frameWidth: 64,
+      frameHeight: 64,
+    });
+    this.load.spritesheet('player-run-right', '/assets/sprites/player_run_right.png', {
+      frameWidth: 64,
+      frameHeight: 64,
+    });
+    this.load.spritesheet('player-run-left', '/assets/sprites/player_run_left.png', {
+      frameWidth: 64,
+      frameHeight: 64,
     });
 
     this.load.spritesheet('enemy-slime', '/assets/sprites/enemy_slime.png', {
@@ -76,6 +96,10 @@ export default class BootScene extends Phaser.Scene {
     this.load.spritesheet('decor-forest', '/assets/tiles/decor_forest.png', {
       frameWidth: 64,
       frameHeight: 64,
+    });
+    this.load.spritesheet('decor-ashen', '/assets/tiles/decor_ashen.png', {
+      frameWidth: 48,
+      frameHeight: 48,
     });
 
     this.load.spritesheet('enemy-treant', '/assets/sprites/enemy_treant.png', {
@@ -175,18 +199,21 @@ export default class BootScene extends Phaser.Scene {
   }
 
   private createPlayerAnims(): void {
-    this.anims.create({
-      key: 'player-idle',
-      frames: this.anims.generateFrameNumbers('player-idle', { start: 0, end: 5 }),
-      frameRate: 8,
-      repeat: -1,
-    });
-    this.anims.create({
-      key: 'player-run',
-      frames: this.anims.generateFrameNumbers('player-run', { start: 0, end: 7 }),
-      frameRate: 14,
-      repeat: -1,
-    });
+    const dirs = ['down', 'up', 'right', 'left'];
+    for (const d of dirs) {
+      this.anims.create({
+        key: 'player-idle-' + d,
+        frames: this.anims.generateFrameNumbers('player-idle-' + d, { start: 0, end: 3 }),
+        frameRate: 5,
+        repeat: -1,
+      });
+      this.anims.create({
+        key: 'player-run-' + d,
+        frames: this.anims.generateFrameNumbers('player-run-' + d, { start: 0, end: 7 }),
+        frameRate: 13,
+        repeat: -1,
+      });
+    }
   }
 
   private createFireboltAnims(): void {

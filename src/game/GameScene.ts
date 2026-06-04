@@ -24,6 +24,7 @@ export default class GameScene extends Phaser.Scene {
   private enemyProjectiles!: Phaser.Physics.Arcade.Group;
   private orbs!: Phaser.Physics.Arcade.Group;
   private decorSprites: Phaser.GameObjects.Sprite[] = [];
+  private decorSolids!: Phaser.Physics.Arcade.Group;
   private boss: Boss | null = null;
   private colliders: Phaser.Physics.Arcade.Collider[] = [];
   private weaponManager!: WeaponManager;
@@ -72,6 +73,7 @@ export default class GameScene extends Phaser.Scene {
     this.orbs = this.physics.add.group();
     this.arrows = this.physics.add.group();
     this.flasks = this.physics.add.group();
+    this.decorSolids = this.physics.add.group({ immovable: true, allowGravity: false });
 
     this.weaponManager = new WeaponManager(this, null, 'sword');
     this.weaponManager.projectiles = this.projectiles;
@@ -211,6 +213,7 @@ export default class GameScene extends Phaser.Scene {
   private scatterDecor(loc: LocationConfig): void {
     this.decorSprites.forEach((s) => s.destroy());
     this.decorSprites = [];
+    this.decorSolids.clear(true, true);
 
     const tex = this.textures.get(loc.decorTheme);
     const frameCount = tex.frameTotal - 1;
@@ -219,7 +222,8 @@ export default class GameScene extends Phaser.Scene {
     const margin = 80;
     const centerSafe = 220;
     const isBigDecor = loc.decorTheme === 'decor-forest';
-    const minGap = isBigDecor ? 170 : 110;
+    const isColumnDecor = loc.decorTheme === 'decor-ashen';
+    const minGap = isBigDecor ? 170 : isColumnDecor ? 150 : 110;
 
     const placed: { x: number; y: number }[] = [];
 
@@ -254,9 +258,23 @@ export default class GameScene extends Phaser.Scene {
       const frame = Phaser.Math.Between(0, frameCount - 1);
       const decor = this.add.sprite(x, y, loc.decorTheme, frame);
       decor.setDepth(1);
-      decor.setScale(2);
+      decor.setScale(isColumnDecor ? 1.0 : 2);
       if (Math.random() < 0.5) decor.setFlipX(true);
       this.decorSprites.push(decor);
+
+      if (isColumnDecor) {
+        // Dynamic but immovable body with a CIRCLE footprint at the base.
+        // Circle-vs-circle is the reliable separation path in Arcade, so the
+        // round-bodied enemies actually collide (static rect bodies let them
+        // tunnel through).
+        this.decorSolids.add(decor);
+        const body = decor.body as Phaser.Physics.Arcade.Body;
+        body.setImmovable(true);
+        body.moves = false;
+        body.setAllowGravity(false);
+        const r = decor.width * 0.4;
+        body.setCircle(r, decor.width / 2 - r, decor.height * 0.6 - r);
+      }
     }
   }
 
@@ -333,6 +351,14 @@ export default class GameScene extends Phaser.Scene {
   private setupCollisions(): void {
     this.colliders.forEach((c) => c.destroy());
     this.colliders = [];
+
+    // Solid decor (columns): block the player and enemies on the base.
+    this.colliders.push(
+      this.physics.add.collider(this.player, this.decorSolids),
+    );
+    this.colliders.push(
+      this.physics.add.collider(this.enemies, this.decorSolids),
+    );
 
     this.colliders.push(
       this.physics.add.overlap(this.projectiles, this.enemies, (a, b) => {
