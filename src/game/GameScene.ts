@@ -223,6 +223,7 @@ export default class GameScene extends Phaser.Scene {
     const centerSafe = 220;
     const isBigDecor = loc.decorTheme === 'decor-forest';
     const isColumnDecor = loc.decorTheme === 'decor-ashen';
+    const solidFrames = loc.solidFrames ?? 0;
     const minGap = isBigDecor ? 170 : isColumnDecor ? 150 : 110;
 
     const placed: { x: number; y: number }[] = [];
@@ -258,11 +259,14 @@ export default class GameScene extends Phaser.Scene {
       const frame = Phaser.Math.Between(0, frameCount - 1);
       const decor = this.add.sprite(x, y, loc.decorTheme, frame);
       decor.setDepth(1);
-      decor.setScale(isColumnDecor ? 1.0 : 2);
+      const decorScale = isColumnDecor
+        ? (frame < solidFrames ? 1.0 : 0.7)
+        : 2;
+      decor.setScale(decorScale);
       if (Math.random() < 0.5) decor.setFlipX(true);
       this.decorSprites.push(decor);
 
-      if (isColumnDecor) {
+      if (isColumnDecor && frame < solidFrames) {
         // Dynamic but immovable body with a CIRCLE footprint at the base.
         // Circle-vs-circle is the reliable separation path in Arcade, so the
         // round-bodied enemies actually collide (static rect bodies let them
