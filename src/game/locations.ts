@@ -40,8 +40,9 @@ export const LOCATIONS: LocationConfig[] = [
     name: 'Dead Forest',
     description: 'Twisted trees and restless bones. Seven waves.',
     floorTexture: 'floor-forest',
-    decorTheme: 'decor-forest',
+    decorTheme: 'decor-ashen',
     decorCount: 20,
+    solidFrames: 9,
     waves: [
       { count: 10, weights: { slime: 3, zombie: 4 }, hpMultiplier: 1.3 },
       { count: 13, weights: { zombie: 4, bat: 3 }, hpMultiplier: 1.45 },
@@ -57,8 +58,9 @@ export const LOCATIONS: LocationConfig[] = [
     name: 'Frozen Crypt',
     description: 'The deepest cold. Nine waves. Only the strong return.',
     floorTexture: 'floor-crypt',
-    decorTheme: 'decor-inferno',
+    decorTheme: 'decor-ashen',
     decorCount: 12,
+    solidFrames: 9,
     waves: [
       { count: 14, weights: { zombie: 3, skeleton: 3, vampire: 3 }, hpMultiplier: 2.0 },
       { count: 16, weights: { mummy: 2, skeleton: 4, vampire: 2 }, hpMultiplier: 2.2 },
@@ -76,8 +78,9 @@ export const LOCATIONS: LocationConfig[] = [
     name: 'Enchanted Forest',
     description: 'Ancient trees breathe with dark magic. Ten waves.',
     floorTexture: 'floor-enchanted',
-    decorTheme: 'decor-forest',
+    decorTheme: 'decor-ashen',
     decorCount: 22,
+    solidFrames: 9,
     waves: [
       { count: 14, weights: { mole: 4, goblin: 3 }, hpMultiplier: 3.0 },
       { count: 16, weights: { mole: 3, treant: 2, orc: 2 }, hpMultiplier: 3.3 },
@@ -96,8 +99,9 @@ export const LOCATIONS: LocationConfig[] = [
     name: 'Mountain Pass',
     description: 'The final ascent. Eleven waves. Legends are forged here.',
     floorTexture: 'floor-mountain',
-    decorTheme: 'decor-catacombs',
+    decorTheme: 'decor-ashen',
     decorCount: 16,
+    solidFrames: 9,
     waves: [
       { count: 18, weights: { mole: 3, orc: 3, treant: 2 }, hpMultiplier: 5.0 },
       { count: 20, weights: { orc: 4, treant: 3, fire_skull: 2 }, hpMultiplier: 5.5 },
