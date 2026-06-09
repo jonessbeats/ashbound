@@ -21,6 +21,10 @@ export default function GameOverModal() {
       ? getLocationIndex(result.locationId)
       : null;
 
+  // On-chain badge contract supports locations 0..4; bonus levels (Meme Rush) have no badge
+  const BADGE_LOCATION_COUNT = 5;
+  const badgeSupported = numericLocationId !== null && numericLocationId < BADGE_LOCATION_COUNT;
+
   const mint = useMintRunBadge(numericLocationId);
 
   const mintRef = useRef(mint);
@@ -91,7 +95,7 @@ export default function GameOverModal() {
   else if (mint.isSuccess) mintLabel = '✓ BADGE MINTED';
   const mintBusy = mint.isSwitching || mint.isPending || mint.isConfirming;
   const canMint =
-    victory && !mintBusy && !mint.isSuccess && !mint.alreadyMinted && numericLocationId !== null;
+    victory && !mintBusy && !mint.isSuccess && !mint.alreadyMinted && numericLocationId !== null && badgeSupported;
 
   return (
     <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-slate-950/90 p-5">
@@ -147,7 +151,11 @@ export default function GameOverModal() {
         </button>
 
         
-        {!victory ? null : !isConnected ? (
+        {!victory ? null : !badgeSupported ? (
+          <p className="text-center font-mono text-xs text-[#4d8bff]">
+            ★ Bonus level — no on-chain badge
+          </p>
+        ) : !isConnected ? (
           <WalletConnect className="w-full" />
         ) : (
           <button
