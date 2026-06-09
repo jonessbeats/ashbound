@@ -7,6 +7,7 @@ const LOCATION_NAMES = [
   'Frozen Crypt',
   'Enchanted Forest',
   'Mountain Pass',
+  'Meme Rush',
 ];
 
 async function main() {

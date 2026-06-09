@@ -22,7 +22,7 @@ export default function GameOverModal() {
       : null;
 
   // On-chain badge contract supports locations 0..4; bonus levels (Meme Rush) have no badge
-  const BADGE_LOCATION_COUNT = 5;
+  const BADGE_LOCATION_COUNT = 6;
   const badgeSupported = numericLocationId !== null && numericLocationId < BADGE_LOCATION_COUNT;
 
   const mint = useMintRunBadge(numericLocationId);

@@ -37,6 +37,9 @@ contract AshboundRunBadge is ERC721, Ownable, Pausable {
         uint256 mintedAt
     );
 
+    // NEW: emitted when the owner appends a location (e.g. a bonus level).
+    event LocationAdded(uint8 indexed locationId, string name);
+
     error InvalidLocation();
     error AlreadyMintedForLocation();
     error NotMintingToSelf();
@@ -77,6 +80,22 @@ contract AshboundRunBadge is ERC721, Ownable, Pausable {
         _safeMint(msg.sender, tokenId);
 
         emit RunBadgeMinted(msg.sender, tokenId, locationId, edition, block.timestamp);
+    }
+
+    /// @notice Append a new location (e.g. a bonus level). Owner-only.
+    /// @dev    Existing locations, badges and mint flags are untouched.
+    ///         The new location's id is the previous length, so it stays in
+    ///         sync with the frontend LOCATIONS index. No redeploy needed for
+    ///         future levels — just call this and host <baseURI><id>.png.
+    function addLocation(string calldata name)
+        external
+        onlyOwner
+        returns (uint8 locationId)
+    {
+        require(_locationNames.length < 255, "too many locations");
+        locationId = uint8(_locationNames.length);
+        _locationNames.push(name);
+        emit LocationAdded(locationId, name);
     }
 
     /// @dev Soulbound enforcement. Allows mint (from == 0) and burn (to == 0),
