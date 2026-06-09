@@ -17,8 +17,10 @@ export default class EnemyProjectile extends Phaser.Physics.Arcade.Sprite {
     angle: number,
     speed: number,
     damage: number,
+    textureKey: string = 'boss-fire',
+    animKey: string = 'boss-fire-fly',
   ) {
-    super(scene, x, y, 'boss-fire', 0);
+    super(scene, x, y, textureKey, 0);
     scene.add.existing(this);
     scene.physics.add.existing(this);
 
@@ -37,7 +39,7 @@ export default class EnemyProjectile extends Phaser.Physics.Arcade.Sprite {
     body.setAllowGravity(false);
     body.setDrag(0, 0);
 
-    this.play('boss-fire-fly');
+    this.play(animKey);
   }
 
   public manualUpdate(delta: number): void {

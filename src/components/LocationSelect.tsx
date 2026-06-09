@@ -15,6 +15,12 @@ export default function LocationSelect({ onPick, onBack }: Props) {
     setCleared(loadProgress().clearedLocations);
   }, []);
 
+  // Meme Rush pinned to the top as the featured bonus level
+  const ordered = [
+    ...LOCATIONS.filter((l) => l.id === 'meme-rush'),
+    ...LOCATIONS.filter((l) => l.id !== 'meme-rush'),
+  ];
+
   return (
     <div className="flex min-h-[100dvh] w-full flex-col items-center bg-[#0a0c14] p-5">
       <h1 className="mb-1 mt-4 font-mono text-2xl tracking-widest text-amber-400">
@@ -24,9 +30,10 @@ export default function LocationSelect({ onPick, onBack }: Props) {
 
       
       <div className="flex w-full max-w-sm flex-col gap-3">
-        {LOCATIONS.map((loc) => {
+        {ordered.map((loc) => {
           const unlocked = isLocationUnlocked(loc.id, cleared);
           const done = cleared.includes(loc.id);
+          const isMeme = loc.id === 'meme-rush';
 
           return (
             <button
@@ -36,17 +43,23 @@ export default function LocationSelect({ onPick, onBack }: Props) {
               className={
                 'min-h-[72px] rounded-lg border p-3 text-left transition-colors ' +
                 (unlocked
-                  ? 'border-amber-500/40 bg-slate-900/80 active:bg-amber-950/50'
+                  ? isMeme
+                    ? 'border-[#0052FF] bg-[#0052FF]/10 shadow-[0_0_20px_rgba(0,82,255,0.35)] active:bg-[#0052FF]/20'
+                    : 'border-amber-500/40 bg-slate-900/80 active:bg-amber-950/50'
                   : 'border-slate-800 bg-slate-950/60 opacity-55')
               }
             >
               <div className="flex items-center justify-between">
-                <span className="font-mono text-base text-slate-100">{loc.name}</span>
+                <span className={'font-mono text-base ' + (isMeme ? 'text-[#4d8bff]' : 'text-slate-100')}>{loc.name}</span>
                 <span className="font-mono text-xs">
                   {done ? (
                     <span className="text-emerald-400">✓ CLEARED</span>
                   ) : unlocked ? (
-                    <span className="text-amber-400">PLAYABLE</span>
+                    isMeme ? (
+                      <span className="text-[#4d8bff]">★ BONUS</span>
+                    ) : (
+                      <span className="text-amber-400">PLAYABLE</span>
+                    )
                   ) : (
                     <span className="text-slate-500">🔒 LOCKED</span>
                   )}

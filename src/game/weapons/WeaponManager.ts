@@ -156,14 +156,13 @@ export default class WeaponManager {
       const d = Phaser.Math.Distance.Between(px, py, e.x, e.y) - eRadius;
       if (d <= ws.range) inRange.push(e);
     }
+    let bossInRange = false;
     if (boss && isAlive(boss)) {
       const bRadius = ((boss as unknown as { displayWidth?: number }).displayWidth ?? 80) / 2;
       const d = Phaser.Math.Distance.Between(px, py, boss.x, boss.y) - bRadius;
-      if (d <= ws.range) {
-        inRange.push(boss as unknown as Enemy);
-      }
+      if (d <= ws.range) bossInRange = true;
     }
-    if (inRange.length === 0) return;
+    if (inRange.length === 0 && !bossInRange) return;
 
     ws.nextAttackAt = elapsedMs + ws.cooldown;
 
@@ -174,9 +173,9 @@ export default class WeaponManager {
       const d = Phaser.Math.Distance.Between(px, py, e.x, e.y);
       if (d < nearestD) { nearest = e; nearestD = d; }
     }
-    if (!nearest) return;
-
-    const centerAngle = Math.atan2(nearest.y - py, nearest.x - px);
+    const centerAngle = nearest
+      ? Math.atan2(nearest.y - py, nearest.x - px)
+      : Math.atan2((boss!.y as number) - py, (boss!.x as number) - px);
     const halfArc = (ws.def.swingArc ?? Math.PI) / 2;
     const critChance = this.player.stats?.critChance ?? 0;
     const isCrit = Math.random() < critChance;
@@ -201,6 +200,14 @@ export default class WeaponManager {
       }
     }
 
+    // Boss is large: a melee swing next to its body always connects (no arc gate)
+    if (bossInRange && boss && isAlive(boss)) {
+      try {
+        const died = (boss as unknown as Enemy).takeDamage(dmg);
+        if (died && this.onKillBoss) this.onKillBoss();
+      } catch { /**/ }
+    }
+
     this.playSwingAnim(slotIdx, ws, centerAngle, halfArc, isCrit);
   }
 
@@ -217,7 +224,8 @@ export default class WeaponManager {
       if (d < bestDist) { bestDist = d; target = e; }
     }
     if (!target && boss && isAlive(boss)) {
-      if (Phaser.Math.Distance.Between(px, py, boss.x, boss.y) <= ws.range) target = boss;
+      const bRadius = ((boss as unknown as { displayWidth?: number }).displayWidth ?? 80) / 2;
+      if (Phaser.Math.Distance.Between(px, py, boss.x, boss.y) - bRadius <= ws.range) target = boss;
     }
     if (!target) return;
 

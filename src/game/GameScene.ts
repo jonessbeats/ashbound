@@ -435,6 +435,8 @@ export default class GameScene extends Phaser.Scene {
   private handleBoss(): void {
     if (!this.boss || !this.boss.active) return;
 
+    const memeBoss = this.location?.id === 'meme-rush';
+
     if (this.boss.shouldFire(this.elapsedMs)) {
       const dist = Phaser.Math.Distance.Between(
         this.boss.x, this.boss.y, this.player.x, this.player.y,
@@ -456,6 +458,8 @@ export default class GameScene extends Phaser.Scene {
             angle,
             BOSS_CONFIG.fireSpeed,
             BOSS_CONFIG.fireDamage,
+            memeBoss ? 'boss-fire-blue' : 'boss-fire',
+            memeBoss ? 'boss-fire-blue-fly' : 'boss-fire-fly',
           );
           this.enemyProjectiles.add(shot);
         }
@@ -463,12 +467,16 @@ export default class GameScene extends Phaser.Scene {
     }
 
     if (this.boss.shouldSummon(this.elapsedMs)) {
-      for (let i = 0; i < BOSS_CONFIG.summonCount; i++) {
+      const summonN = memeBoss ? 1 : BOSS_CONFIG.summonCount;
+      for (let i = 0; i < summonN; i++) {
         const ox = this.boss.x + Phaser.Math.Between(-60, 60);
         const oy = this.boss.y + Phaser.Math.Between(-60, 60);
         const x = Phaser.Math.Clamp(ox, 30, ARENA.width - 30);
         const y = Phaser.Math.Clamp(oy, 30, ARENA.height - 30);
-        this.enemies.add(new Enemy(this, x, y, 'bat', this.currentWave().hpMultiplier));
+        const sk: EnemyKind = this.location?.id === 'meme-rush'
+          ? Phaser.Utils.Array.GetRandom(['brett', 'toshi', 'mochi', 'degen', 'doginme', 'skimask'] as EnemyKind[])
+          : 'bat';
+        this.enemies.add(new Enemy(this, x, y, sk, this.currentWave().hpMultiplier));
       }
     }
   }
@@ -509,8 +517,13 @@ export default class GameScene extends Phaser.Scene {
     const x = Phaser.Math.Clamp(this.player.x, 200, ARENA.width - 200);
     const y = Phaser.Math.Clamp(view.y - 80, 80, ARENA.height - 80);
 
-    this.boss = new Boss(this, x, y, difficulty);
+    const variant = this.location?.id === 'meme-rush' ? 'based_one' : 'dragon';
+    this.boss = new Boss(this, x, y, difficulty, variant);
+    if (variant === 'based_one') this.boss.contactDamage = Math.round(this.boss.contactDamage * 0.6);
     this.boss.initAbilities(this.elapsedMs);
+
+    // Boss is solid against mobs (they can't overlap/stack on it)
+    this.colliders.push(this.physics.add.collider(this.enemies, this.boss));
 
     this.colliders.push(
       this.physics.add.overlap(this.projectiles, this.boss, (a, b) => {

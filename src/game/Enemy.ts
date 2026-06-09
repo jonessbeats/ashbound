@@ -2,6 +2,8 @@ import * as Phaser from 'phaser';
 import { ENEMY_CONFIG } from './config';
 import type { EnemyKind } from './types';
 
+const MEME_KINDS: EnemyKind[] = ['brett', 'toshi', 'mochi', 'degen', 'doginme', 'skimask'];
+
 const FRAME_SIZE: Record<EnemyKind, { w: number; h: number }> = {
   slime: { w: 16, h: 16 },
   bat: { w: 19, h: 28 },
@@ -18,6 +20,13 @@ const FRAME_SIZE: Record<EnemyKind, { w: number; h: number }> = {
   mummy: { w: 16, h: 16 },
   zombie: { w: 16, h: 16 },
   fire_skull: { w: 16, h: 16 },
+  // Meme Rush
+  brett: { w: 64, h: 64 },
+  toshi: { w: 64, h: 64 },
+  mochi: { w: 64, h: 64 },
+  degen: { w: 64, h: 64 },
+  doginme: { w: 64, h: 64 },
+  skimask: { w: 64, h: 64 },
 };
 
 export default class Enemy extends Phaser.Physics.Arcade.Sprite {
@@ -55,6 +64,19 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     body.setCircle(radius, frame.w / 2 - radius, frame.h / 2 - radius);
 
     this.play('enemy-' + kind);
+
+    // Meme heads float and bob (squash/stretch tween, no physics impact)
+    if (MEME_KINDS.includes(kind)) {
+      this.scene.tweens.add({
+        targets: this,
+        scaleX: scale * 1.06,
+        scaleY: scale * 0.94,
+        duration: 560,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.InOut',
+      });
+    }
   }
 
   public chase(targetX: number, targetY: number): void {

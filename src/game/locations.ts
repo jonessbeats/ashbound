@@ -116,6 +116,24 @@ export const LOCATIONS: LocationConfig[] = [
       { count: 10, weights: { treant: 3, orc: 3, fire_skull: 3, elite: 2 }, hpMultiplier: 12.0, boss: true },
     ],
   },
+
+  {
+    id: 'meme-rush',
+    name: 'Meme Rush',
+    description: 'The memes invade Ashbound. Survive the onchain swarm — then face The Based One.',
+    floorTexture: 'floor-crypt',
+    decorTheme: 'decor-ashen',
+    decorCount: 10,
+    solidFrames: 9,
+    waves: [
+      { count: 10, weights: { brett: 4, toshi: 4, mochi: 3 }, hpMultiplier: 1.5 },
+      { count: 12, weights: { brett: 3, toshi: 3, mochi: 3, doginme: 3 }, hpMultiplier: 2.0 },
+      { count: 14, weights: { toshi: 3, mochi: 3, doginme: 3, degen: 3 }, hpMultiplier: 2.5 },
+      { count: 15, weights: { brett: 3, doginme: 3, degen: 3, skimask: 3 }, hpMultiplier: 3.0 },
+      { count: 16, weights: { mochi: 3, doginme: 3, degen: 3, skimask: 4 }, hpMultiplier: 3.5 },
+      { count: 8, weights: { brett: 3, toshi: 3, skimask: 3 }, hpMultiplier: 1.2, boss: true },
+    ],
+  },
 ];
 
 export function getLocation(id: string): LocationConfig | undefined {

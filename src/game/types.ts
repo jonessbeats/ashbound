@@ -1,4 +1,4 @@
-export type EnemyKind = 'slime' | 'bat' | 'skeleton' | 'skeleton2' | 'elite' | 'treant' | 'mole' | 'vampire' | 'goblin' | 'orc' | 'mummy' | 'zombie' | 'fire_skull';
+export type EnemyKind = 'slime' | 'bat' | 'skeleton' | 'skeleton2' | 'elite' | 'treant' | 'mole' | 'vampire' | 'goblin' | 'orc' | 'mummy' | 'zombie' | 'fire_skull' | 'brett' | 'toshi' | 'mochi' | 'degen' | 'doginme' | 'skimask';
 
 export interface PlayerStats {
   maxHp: number;

@@ -27,6 +27,13 @@ export const ENEMY_CONFIG = {
   mummy: { hp: 200, speed: 38, contactDamage: 11, xp: 16, size: 38, weight: 0 },
   zombie: { hp: 50, speed: 50, contactDamage: 16, xp: 6, size: 34, weight: 5 },
   fire_skull: { hp: 60, speed: 135, contactDamage: 20, xp: 14, size: 32, weight: 0 },
+  // Meme Rush (bonus): floating memecoin heads
+  brett: { hp: 38, speed: 88,  contactDamage: 9,  xp: 9,  size: 46, weight: 4 },
+  toshi: { hp: 34, speed: 96,  contactDamage: 8,  xp: 8,  size: 44, weight: 4 },
+  mochi: { hp: 32, speed: 100, contactDamage: 8,  xp: 8,  size: 42, weight: 4 },
+  degen: { hp: 46, speed: 78,  contactDamage: 11, xp: 10, size: 46, weight: 3 },
+  doginme: { hp: 36, speed: 104, contactDamage: 9,  xp: 9,  size: 46, weight: 4 },
+  skimask: { hp: 42, speed: 112, contactDamage: 12, xp: 11, size: 46, weight: 3 },
 } as const;
 
 export const BOSS_CONFIG = {

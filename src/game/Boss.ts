@@ -1,7 +1,11 @@
 import * as Phaser from 'phaser';
 import { BOSS_CONFIG } from './config';
 
-const FRAME = { w: 70, h: 73 };
+const BOSS_VARIANTS = {
+  dragon:    { texture: 'boss-dragon',    anim: 'boss-dragon-fly',    w: 70,  h: 73,  roar: 'boss-fire-hit',      bodyR: 0.38 },
+  based_one: { texture: 'boss-based-one', anim: 'boss-based-one-fly', w: 128, h: 128, roar: 'boss-fire-hit-blue', bodyR: 0.5 },
+} as const;
+type BossVariant = keyof typeof BOSS_VARIANTS;
 
 type PhaseParams = {
   hpThreshold: number;
@@ -24,11 +28,15 @@ export default class Boss extends Phaser.Physics.Arcade.Sprite {
   private phaseParams: PhaseParams = BOSS_CONFIG.phases.phase1;
 
   private phaseTint = 0xffffff;
+  private roarKey: string;
 
-  constructor(scene: Phaser.Scene, x: number, y: number, difficulty: number) {
-    super(scene, x, y, 'boss-dragon', 0);
+  constructor(scene: Phaser.Scene, x: number, y: number, difficulty: number, variant: BossVariant = 'dragon') {
+    super(scene, x, y, BOSS_VARIANTS[variant].texture, 0);
     scene.add.existing(this);
     scene.physics.add.existing(this);
+
+    const v = BOSS_VARIANTS[variant];
+    this.roarKey = v.roar;
 
     this.maxHp = Math.round(BOSS_CONFIG.hp * difficulty);
     this.hp = this.maxHp;
@@ -36,16 +44,17 @@ export default class Boss extends Phaser.Physics.Arcade.Sprite {
     this.contactDamage = BOSS_CONFIG.contactDamage;
     this.xpValue = BOSS_CONFIG.xp;
 
-    this.setDepth(6);
+    this.setDepth(7);
 
-    const scale = BOSS_CONFIG.size / FRAME.h;
+    const scale = BOSS_CONFIG.size / v.h;
     this.setScale(scale);
 
     const body = this.body as Phaser.Physics.Arcade.Body;
-    const radius = Math.round(FRAME.h * 0.38);
-    body.setCircle(radius, Math.round(FRAME.w / 2 - radius), Math.round(FRAME.h / 2 - radius));
+    const radius = Math.round(v.h * v.bodyR);
+    body.setCircle(radius, Math.round(v.w / 2 - radius), Math.round(v.h / 2 - radius));
+    body.setImmovable(true);
 
-    this.play('boss-dragon-fly');
+    this.play(v.anim);
   }
 
   public initAbilities(now: number): void {
@@ -82,7 +91,33 @@ export default class Boss extends Phaser.Physics.Arcade.Sprite {
   public takeDamage(amount: number): boolean {
     this.hp -= amount;
 
-    this.setTint(0xffffff);
+    // Floating damage number above the boss
+    const isCrit = amount > 25;
+    const dmgText = this.scene.add
+      .text(
+        this.x + Phaser.Math.Between(-12, 12),
+        this.y - this.displayHeight * 0.4,
+        Math.round(amount).toString(),
+        {
+          fontSize: isCrit ? '16px' : '13px',
+          color: isCrit ? '#ffee44' : '#ffffff',
+          stroke: '#000',
+          strokeThickness: 3,
+          fontStyle: 'bold',
+        },
+      )
+      .setOrigin(0.5)
+      .setDepth(20);
+    this.scene.tweens.add({
+      targets: dmgText,
+      y: dmgText.y - 26,
+      alpha: 0,
+      duration: 650,
+      ease: 'Sine.Out',
+      onComplete: () => dmgText.destroy(),
+    });
+
+    this.setTint(0xff3333);
     this.scene.time.delayedCall(70, () => {
       if (!this.active) return;
       if (this.phaseTint === 0xffffff) this.clearTint();
@@ -115,10 +150,10 @@ export default class Boss extends Phaser.Physics.Arcade.Sprite {
 
     if (this.phase === 3) {
       const roar = this.scene.add
-        .sprite(this.x, this.y, 'boss-fire-hit', 0)
+        .sprite(this.x, this.y, this.roarKey, 0)
         .setDepth(7)
         .setScale(5);
-      roar.play('boss-fire-hit');
+      roar.play(this.roarKey);
       roar.once(Phaser.Animations.Events.ANIMATION_COMPLETE, () => roar.destroy());
     }
   }

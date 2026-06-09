@@ -66,6 +66,14 @@ export default class BootScene extends Phaser.Scene {
       frameHeight: 13,
     });
 
+    this.load.spritesheet('boss-fire-blue', '/assets/sprites/boss_fire_blue.png', {
+      frameWidth: 15,
+      frameHeight: 5,
+    });
+    this.load.spritesheet('boss-fire-hit-blue', '/assets/sprites/boss_fire_hit_blue.png', {
+      frameWidth: 13,
+      frameHeight: 13,
+    });
     this.load.spritesheet('firebolt', '/assets/sprites/firebolt.png', {
       frameWidth: 16,
       frameHeight: 16,
@@ -137,6 +145,27 @@ export default class BootScene extends Phaser.Scene {
       frameWidth: 16, frameHeight: 16,
     });
 
+    this.load.spritesheet('enemy-brett', '/assets/sprites/enemy_brett.png', {
+      frameWidth: 64, frameHeight: 64,
+    });
+    this.load.spritesheet('enemy-toshi', '/assets/sprites/enemy_toshi.png', {
+      frameWidth: 64, frameHeight: 64,
+    });
+    this.load.spritesheet('enemy-mochi', '/assets/sprites/enemy_mochi.png', {
+      frameWidth: 64, frameHeight: 64,
+    });
+    this.load.spritesheet('enemy-degen', '/assets/sprites/enemy_degen.png', {
+      frameWidth: 64, frameHeight: 64,
+    });
+    this.load.spritesheet('enemy-doginme', '/assets/sprites/enemy_doginme.png', {
+      frameWidth: 64, frameHeight: 64,
+    });
+    this.load.spritesheet('enemy-skimask', '/assets/sprites/enemy_skimask.png', {
+      frameWidth: 64, frameHeight: 64,
+    });
+    this.load.spritesheet('boss-based-one', '/assets/sprites/boss_based_one.png', {
+      frameWidth: 128, frameHeight: 128,
+    });
     this.load.spritesheet('torch', '/assets/sprites/torch.png', {
       frameWidth: 16,
       frameHeight: 16,
@@ -246,6 +275,12 @@ export default class BootScene extends Phaser.Scene {
       mummy: 4,
       zombie: 4,
       fire_skull: 4,
+      brett: 1,
+      toshi: 1,
+      mochi: 1,
+      degen: 1,
+      doginme: 1,
+      skimask: 1,
     };
     for (const [k, frames] of Object.entries(kinds)) {
       this.anims.create({
@@ -287,6 +322,12 @@ export default class BootScene extends Phaser.Scene {
       repeat: -1,
     });
     this.anims.create({
+      key: 'boss-based-one-fly',
+      frames: this.anims.generateFrameNumbers('boss-based-one', { start: 0, end: 0 }),
+      frameRate: 1,
+      repeat: -1,
+    });
+    this.anims.create({
       key: 'boss-fire-fly',
       frames: this.anims.generateFrameNumbers('boss-fire', { start: 0, end: 3 }),
       frameRate: 14,
@@ -295,6 +336,18 @@ export default class BootScene extends Phaser.Scene {
     this.anims.create({
       key: 'boss-fire-hit',
       frames: this.anims.generateFrameNumbers('boss-fire-hit', { start: 0, end: 3 }),
+      frameRate: 20,
+      repeat: 0,
+    });
+    this.anims.create({
+      key: 'boss-fire-blue-fly',
+      frames: this.anims.generateFrameNumbers('boss-fire-blue', { start: 0, end: 3 }),
+      frameRate: 14,
+      repeat: -1,
+    });
+    this.anims.create({
+      key: 'boss-fire-hit-blue',
+      frames: this.anims.generateFrameNumbers('boss-fire-hit-blue', { start: 0, end: 3 }),
       frameRate: 20,
       repeat: 0,
     });
