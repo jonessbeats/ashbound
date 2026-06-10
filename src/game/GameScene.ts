@@ -123,8 +123,10 @@ export default class GameScene extends Phaser.Scene {
       }
     };
 
-    const onStartLocation = (locationId: string) => {
-      this.time.delayedCall(0, () => this.beginLocation(locationId));
+    const onStartLocation = (payload: string | { id: string; carry?: boolean }) => {
+      const id = typeof payload === 'string' ? payload : payload.id;
+      const carry = typeof payload === 'string' ? false : !!payload.carry;
+      this.time.delayedCall(0, () => this.beginLocation(id, carry));
     };
 
     const onRestart = () => {
@@ -148,7 +150,7 @@ export default class GameScene extends Phaser.Scene {
     this.events.once(Phaser.Scenes.Events.DESTROY, cleanup);
   }
 
-  private beginLocation(locationId: string): void {
+  private beginLocation(locationId: string, carry = false): void {
     const loc = getLocation(locationId);
     if (!loc) return;
     this.location = loc;
@@ -172,10 +174,21 @@ export default class GameScene extends Phaser.Scene {
 
     this.scatterDecor(loc);
 
+    // Carry run state when continuing to the next location (NEXT button).
+    const carried = carry && this.player
+      ? { stats: { ...this.player.stats }, level: this.player.level, xp: this.player.xp }
+      : null;
+
     if (this.player) this.player.destroy();
     this.player = new Player(this, ARENA.width / 2, ARENA.height / 2);
+    if (carried) {
+      Object.assign(this.player.stats, carried.stats);
+      this.player.level = carried.level;
+      this.player.xp = carried.xp;
+      this.player.hpCurrent = this.player.stats.maxHp; // full heal on entering
+    }
     this.cameras.main.startFollow(this.player, true, 0.12, 0.12);
-    this.weaponManager.reset('sword');
+    if (!carried) this.weaponManager.reset('sword');
     this.weaponManager.setPlayer(this.player);
     this.setupCollisions();
 
@@ -203,7 +216,7 @@ export default class GameScene extends Phaser.Scene {
       )
       .forEach((o) => o.destroy());
     this.flasks.clear(true, true);
-    resetUpgradeCounts();
+    if (!carried) resetUpgradeCounts();
     this.physics.resume();
 
     this.waveIndex = 0;

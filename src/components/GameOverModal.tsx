@@ -60,7 +60,7 @@ export default function GameOverModal() {
 
   const goNext = () => {
     if (!nextLocation) return;
-    EventBus.emit(GameEvents.START_LOCATION, nextLocation.id);
+    EventBus.emit(GameEvents.START_LOCATION, { id: nextLocation.id, carry: true });
     setResult(null);
   };
 
