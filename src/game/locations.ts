@@ -42,7 +42,7 @@ export const LOCATIONS: LocationConfig[] = [
     floorTexture: 'floor-forest',
     decorTheme: 'decor-forest-trees',
     decorCount: 20,
-    solidFrames: 5,
+    solidFrames: 6,
     waves: [
       { count: 10, weights: { slime: 3, zombie: 4 }, hpMultiplier: 1.3 },
       { count: 13, weights: { zombie: 4, bat: 3 }, hpMultiplier: 1.45 },
