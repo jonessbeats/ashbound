@@ -17,7 +17,7 @@ export const ENEMY_CONFIG = {
   elite: { hp: 220, speed: 72, contactDamage: 26, xp: 40, size: 44, weight: 0 },
   // Tiny RPG Forest by Ansimuz (CC0)
   treant: { hp: 160, speed: 48, contactDamage: 24, xp: 22, size: 46, weight: 0 },
-  mole: { hp: 18, speed: 180, contactDamage: 11, xp: 6, size: 30, weight: 0 },
+  mole: { hp: 18, speed: 128, contactDamage: 7, xp: 6, size: 30, weight: 0 },
   // 2D Pixel Dungeon Asset Pack by Pixel_Poem (commercial OK)
   skeleton2: { hp: 80, speed: 68, contactDamage: 19, xp: 12, size: 36, weight: 0 },
   vampire: { hp: 30, speed: 145, contactDamage: 18, xp: 10, size: 34, weight: 0 },
