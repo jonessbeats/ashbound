@@ -26,7 +26,7 @@ export const LOCATIONS: LocationConfig[] = [
     floorTexture: 'floor-ruins',
     decorTheme: 'decor-ashen',
     decorCount: 18,
-    solidFrames: 10,
+    solidFrames: 13,
     waves: [
       { count: 6, weights: { slime: 5 }, hpMultiplier: 1.0 },
       { count: 9, weights: { slime: 4, goblin: 3 }, hpMultiplier: 1.1 },
@@ -60,7 +60,7 @@ export const LOCATIONS: LocationConfig[] = [
     floorTexture: 'floor-crypt',
     decorTheme: 'decor-ashen',
     decorCount: 12,
-    solidFrames: 10,
+    solidFrames: 13,
     waves: [
       { count: 14, weights: { zombie: 3, skeleton: 3, vampire: 3 }, hpMultiplier: 2.0 },
       { count: 16, weights: { mummy: 2, skeleton: 4, vampire: 2 }, hpMultiplier: 2.2 },
@@ -124,7 +124,7 @@ export const LOCATIONS: LocationConfig[] = [
     floorTexture: 'floor-crypt',
     decorTheme: 'decor-ashen',
     decorCount: 10,
-    solidFrames: 10,
+    solidFrames: 13,
     waves: [
       { count: 10, weights: { brett: 4, toshi: 4, mochi: 3 }, hpMultiplier: 1.5 },
       { count: 12, weights: { brett: 3, toshi: 3, mochi: 3, doginme: 3 }, hpMultiplier: 2.0 },
