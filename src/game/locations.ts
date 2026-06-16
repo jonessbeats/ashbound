@@ -80,7 +80,7 @@ export const LOCATIONS: LocationConfig[] = [
     floorTexture: 'floor-enchanted',
     decorTheme: 'decor-enchanted-trees',
     decorCount: 22,
-    solidFrames: 3,
+    solidFrames: 6,
     waves: [
       { count: 14, weights: { mole: 4, goblin: 3 }, hpMultiplier: 3.0 },
       { count: 16, weights: { mole: 3, treant: 2, orc: 2 }, hpMultiplier: 3.3 },
