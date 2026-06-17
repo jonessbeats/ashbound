@@ -101,7 +101,7 @@ export const LOCATIONS: LocationConfig[] = [
     floorTexture: 'floor-mountain',
     decorTheme: 'decor-mountain-trees',
     decorCount: 16,
-    solidFrames: 4,
+    solidFrames: 6,
     waves: [
       { count: 18, weights: { mole: 3, orc: 3, treant: 2 }, hpMultiplier: 5.0 },
       { count: 20, weights: { orc: 4, treant: 3, fire_skull: 2 }, hpMultiplier: 5.5 },
