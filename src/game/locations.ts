@@ -58,9 +58,9 @@ export const LOCATIONS: LocationConfig[] = [
     name: 'Frozen Crypt',
     description: 'The deepest cold. Nine waves. Only the strong return.',
     floorTexture: 'floor-crypt',
-    decorTheme: 'decor-ashen',
+    decorTheme: 'decor-crypt',
     decorCount: 12,
-    solidFrames: 13,
+    solidFrames: 6,
     waves: [
       { count: 14, weights: { zombie: 3, skeleton: 3, vampire: 3 }, hpMultiplier: 2.0 },
       { count: 16, weights: { mummy: 2, skeleton: 4, vampire: 2 }, hpMultiplier: 2.2 },

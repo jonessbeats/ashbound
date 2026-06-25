@@ -235,7 +235,7 @@ export default class GameScene extends Phaser.Scene {
     const margin = 80;
     const centerSafe = 220;
     const isBigDecor = loc.decorTheme === 'decor-forest';
-    const ownDecor = ['decor-ashen', 'decor-forest-trees', 'decor-enchanted-trees', 'decor-mountain-trees'];
+    const ownDecor = ['decor-ashen', 'decor-forest-trees', 'decor-enchanted-trees', 'decor-mountain-trees', 'decor-crypt'];
     const isColumnDecor = ownDecor.includes(loc.decorTheme);
     const solidFrames = loc.solidFrames ?? 0;
     const minGap = isBigDecor ? 170 : isColumnDecor ? 150 : 110;

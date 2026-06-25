@@ -111,6 +111,9 @@ export default class BootScene extends Phaser.Scene {
     this.load.spritesheet('decor-enchanted-trees', '/assets/tiles/decor_enchanted_trees.png', {
       frameWidth: 48, frameHeight: 48,
     });
+    this.load.spritesheet('decor-crypt', '/assets/tiles/decor_crypt.png', {
+      frameWidth: 48, frameHeight: 48,
+    });
     this.load.spritesheet('decor-mountain-trees', '/assets/tiles/decor_mountain_trees.png', {
       frameWidth: 48, frameHeight: 48,
     });
